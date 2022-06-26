@@ -1,28 +1,35 @@
+import 'package:chat_project/catalog/credential/signin.dart';
+import 'package:chat_project/module/MyProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:oasis/home.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
+void main()
+{
+  runApp(
+      MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_)=>MyProvider()),
+          ],
+          child: MyApp()
+      )
+  );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget
+{
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-     return MaterialApp(
-       debugShowCheckedModeBanner: false,
-       theme: ThemeData(
-            appBarTheme: AppBarTheme(
-              backgroundColor: Color(0xff075e54)
-            ),
-           // primarySwatch: Colors.green,
-           // primaryColor: Colors.green,
-           primaryColorLight: Colors.green,
-       ),
-       home: HomeScreen(),
-
-     );
-  
+    return MaterialApp(
+        title: 'OasisApp',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primaryColor: Color(0xff154a99),
+        ),
+        home: SigninScreen(),
+        // home: MyHomePage(),
+        // home: HomePage(),
+        // home: Voice(),
+    );
   }
 }
-
