@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
-const Color text_color0 = Colors.orange;
+const Color text_color0 = Color(0xff154a99);
 // const Color text_color0 = Color(0xffeead41);
 const Color text_color = Color(0xff154a99);
 
@@ -9,11 +9,11 @@ const Color text_color1 = Colors.white70;
 const Color text_color2 = Colors.grey;
 const Color text_color3 = Colors.green;
 const Color text_color4 = Colors.blueAccent;
-const Color kBlue = Color(0xfffdad00);
+const Color kBlue = Color(0xff154a99);
 
 const Color color_grey = Colors.grey;
 const Color color_white = Colors.white;
-const Color color_orange = Colors.orange;
+const Color color_orange = Color(0xff154a99);
 const Color color_red = Colors.red;
 
 const TextStyle kBodyText = TextStyle(fontSize: 18, color: Colors.white, height: 1.5);
@@ -50,7 +50,10 @@ final kHintTextStyle = TextStyle(
 );
 
 const apiUrl = "http://192.168.43.3:8000/api/";
-// const apiUrl = "http://192.168.165.187:8000/api/";
+// const apiUrl = "http://192.168.42.63:8000/api/";
+// const apiUrl = "http://192.168.42.159:8000/api/";
+// const apiUrl = "https://oasisapp.tech/api/";
+const ressourceBasePath = apiUrl;
 
 userHeaders() async
 {

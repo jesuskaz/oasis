@@ -1,7 +1,7 @@
 import 'package:badges/badges.dart';
-import 'package:chat_project/tool.dart';
-import 'package:chat_project/wallet/screen/home.dart';
-import 'package:chat_project/wallet/screen/pay.dart';
+import 'package:oasisapp/tool.dart';
+import 'package:oasisapp/wallet/screen/home.dart';
+import 'package:oasisapp/wallet/screen/pay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -100,7 +100,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                 FlatButton(
                   child: Text("OUI"),
                   textColor: Colors.white,
-                  color: Colors.orange,
+                  color: text_color0,
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -126,7 +126,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                 FlatButton(
                   child: Text("Ok"),
                   textColor: Colors.white,
-                  color: Colors.orange,
+                  color: text_color0,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -178,23 +178,23 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: text_color0,
         elevation: 0.0,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF545D68)),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text('Pickup',
+        title: const Text('Commande',
             style: TextStyle(
                 fontFamily: 'Varela',
                 fontSize: 20.0,
-                color: Color(0xFF545D68))),
+                color: Colors.white)),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.notifications_none, color: const Color(0xFF545D68)),
+            icon: Icon(Icons.notifications_none, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -216,14 +216,14 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                           fontFamily: 'Varela',
                           fontSize: 42.0,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFF17532))
+                          color: text_color0)
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(right: 20.0),
                   child: IconButton(
                     icon: Icon(Icons.share),
-                    color:  Color(0xFFF17532),
+                    color: text_color0,
                     onPressed: (){
                     },
                   ),
@@ -366,7 +366,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                       Container(
                         height: 50.0,
                         child: RaisedButton(
-                            color:  Color(0xFFF17532),
+                            color:  text_color0,
                             child: const Text(
                               "Ajouter au Panier",
                               style: TextStyle(
@@ -444,7 +444,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
             Container(
               height: 50.0,
               child: RaisedButton(
-                color:  Color(0xFFF17532),
+                color:  text_color0,
                 child: const Text(
                     "Passer une commande",
                   style: TextStyle(
@@ -484,7 +484,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              color: Colors.orange,
+                              color: text_color0,
                               textColor: Colors.white,
                               child: const Text(
                                 'Ok',

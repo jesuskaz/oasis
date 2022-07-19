@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:chat_project/module/fucntions.dart';
+import 'package:oasisapp/module/fucntions.dart';
 import 'package:flutter/material.dart';
 
 class User

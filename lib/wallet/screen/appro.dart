@@ -1,13 +1,11 @@
 import 'dart:ui';
-import 'package:chat_project/solde.dart';
-import 'package:chat_project/wallet/component/appBar.dart';
-import 'package:chat_project/wallet/component/card.dart';
-import 'package:chat_project/wallet/screen/home.dart';
-import 'package:chat_project/wallet/screen/payment_card.dart';
+import 'package:oasisapp/solde.dart';
+import 'package:oasisapp/wallet/screen/home.dart';
+import 'package:oasisapp/wallet/screen/payment_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 import 'detail_wallet.dart';
 
 class Appro extends StatefulWidget
@@ -27,7 +25,6 @@ class _Appro extends State<Appro>
 
   bool process = false;
   bool univProcess = false;
-  bool _autovalidate = false;
 
   bool valusd = false;
   bool valcdf = false;
@@ -86,7 +83,7 @@ class _Appro extends State<Appro>
             }
           },
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
+            enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(
                   color: text_color2,
                 )),
@@ -148,7 +145,7 @@ class _Appro extends State<Appro>
                   }
                 },
                 child: Text(
-                  "Suivant",
+                  "Valider",
                   style: kBodyText.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -172,7 +169,7 @@ class _Appro extends State<Appro>
               Icons.dialpad,
               'Montant',
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Container(
@@ -405,20 +402,15 @@ class _Appro extends State<Appro>
     }
 
     Size size = MediaQuery.of(context).size;
-    final isKeyBoard = MediaQuery.of(context).viewInsets.bottom != 0;
 
     return Scaffold(
       backgroundColor: Colors.blueGrey[50],
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0),
-        child: SafeArea(
-          child: appBar(
-              left: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Icon(Icons.arrow_back_ios, color: Colors.black54)),
-              title: 'Oasis-Wallet',
-              right: Icon(Icons.more_vert, color: Colors.black54)),
-        ),
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: color_white),
+        backgroundColor: text_color,
+        elevation: 1.0,
+        centerTitle: true,
+        title: const Text('Oasis-wallet', style: style_init),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -426,150 +418,148 @@ class _Appro extends State<Appro>
           height: size.height * 0.8,
           child: Column(
             children: [
-              SizedBox(height: 20,),
-              Solde(),
-              SizedBox(height: 20,),
-              Container(
-                child: Stack(children: [
-                  AnimatedPositioned(
+              const SizedBox(height: 20,),
+              const Solde(),
+              const SizedBox(height: 20,),
+              Stack(children: [
+                AnimatedPositioned(
+                  duration: Duration(milliseconds: 700),
+                  curve: Curves.bounceInOut,
+                  child: AnimatedContainer(
                     duration: Duration(milliseconds: 700),
                     curve: Curves.bounceInOut,
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 700),
-                      curve: Curves.bounceInOut,
-                      height: ((() {
-                        if (isUSD) {
-                          return size.height * 0.4;
-                        }
-                        if (isCDF) {
-                          return size.height * 0.4;
-                        }
-                      })()),
-                      padding: EdgeInsets.all(20),
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width - 40,
-                      margin: EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 15,
-                                spreadRadius: 5),
-                          ]),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isUSD = true;
-                                      isCDF = false;
+                    height: ((() {
+                      if (isUSD) {
+                        return size.height * 0.4;
+                      }
+                      if (isCDF) {
+                        return size.height * 0.4;
+                      }
+                    })()),
+                    padding: EdgeInsets.all(20),
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width - 40,
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 15,
+                              spreadRadius: 5),
+                        ]),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isUSD = true;
+                                    isCDF = false;
 
-                                      valusd = false;
-                                      valcdf = false;
-                                    });
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "USD",
-                                        style: TextStyle(
-                                            fontSize: taille1,
-                                            fontWeight: FontWeight.bold,
-                                            color: isUSD
-                                                ? text_color0
-                                                : text_color2),
-                                      ),
-                                      if (!isCDF)
-                                        Container(
-                                          margin: EdgeInsets.only(top: 3),
-                                          height: 2,
-                                          width: 55,
-                                          color: Colors.orange,
-                                        )
-                                    ],
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isUSD = false;
-                                      isCDF = true;
-                                    });
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "CDF",
-                                        style: TextStyle(
-                                            fontSize: taille1,
-                                            fontWeight: FontWeight.bold,
-                                            color: isCDF
-                                                ? text_color0
-                                                : text_color2),
-                                      ),
-                                      if (!isUSD)
-                                        Container(
-                                          margin: EdgeInsets.only(top: 3),
-                                          height: 2,
-                                          width: 55,
-                                          color: Colors.orange,
-                                        )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            if (isCDF) buildCDF(),
-                            if (isUSD) buildUSD(),
-                            isUSD || isCDF
-                                ? GestureDetector(
-                              onTap: () {
-                                ;
-                              },
-                              child: Container(
-                                // width: size.width * 0.6,
-                                margin: EdgeInsets.only(top: 10),
-                                child: RichText(
-                                  textAlign: TextAlign.justify,
-                                  text: const TextSpan(
-                                      text:
-                                      "Veuillez effectuer votre approvisionnement ",
+                                    valusd = false;
+                                    valcdf = false;
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "USD",
                                       style: TextStyle(
-                                        color: text_color2,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          //recognizer: ,
-                                          text: "Oasis-Wallet",
-                                          style:
-                                          TextStyle(color: text_color0),
-                                        ),
-                                        TextSpan(
-                                          //recognizer: ,
-                                          text: " en un clic",
-                                          style:
-                                          TextStyle(color: text_color2),
-                                        ),
-                                      ]),
+                                          fontSize: taille1,
+                                          fontWeight: FontWeight.bold,
+                                          color: isUSD
+                                              ? text_color0
+                                              : text_color2),
+                                    ),
+                                    if (!isCDF)
+                                      Container(
+                                        margin: EdgeInsets.only(top: 3),
+                                        height: 2,
+                                        width: 55,
+                                        color: text_color0,
+                                      )
+                                  ],
                                 ),
                               ),
-                            )
-                                : Container(),
-                          ],
-                        ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isUSD = false;
+                                    isCDF = true;
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "CDF",
+                                      style: TextStyle(
+                                          fontSize: taille1,
+                                          fontWeight: FontWeight.bold,
+                                          color: isCDF
+                                              ? text_color0
+                                              : text_color2),
+                                    ),
+                                    if (!isUSD)
+                                      Container(
+                                        margin: EdgeInsets.only(top: 3),
+                                        height: 2,
+                                        width: 55,
+                                        color: text_color0,
+                                      )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          if (isCDF) buildCDF(),
+                          if (isUSD) buildUSD(),
+                          isUSD || isCDF
+                              ? GestureDetector(
+                            onTap: () {
+                              ;
+                            },
+                            child: Container(
+                              // width: size.width * 0.6,
+                              margin: EdgeInsets.only(top: 10),
+                              child: RichText(
+                                textAlign: TextAlign.justify,
+                                text: const TextSpan(
+                                    text:
+                                    "Veuillez effectuer votre approvisionnement ",
+                                    style: TextStyle(
+                                      color: text_color2,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        //recognizer: ,
+                                        text: "Oasis-Wallet",
+                                        style:
+                                        TextStyle(color: text_color0),
+                                      ),
+                                      TextSpan(
+                                        //recognizer: ,
+                                        text: " en un clic",
+                                        style:
+                                        TextStyle(color: text_color2),
+                                      ),
+                                    ]),
+                              ),
+                            ),
+                          )
+                              : Container(),
+                        ],
                       ),
                     ),
                   ),
-                ]),
-              ),
+                ),
+              ]),
             ],
           ),
         ),
@@ -583,61 +573,6 @@ class _Appro extends State<Appro>
             buildNavBarAppro(Icons.account_balance_wallet, 0, "Appro"),
             buildNavBarTrans(Icons.send, 2, "Pay"),
             buildNavBarHist(Icons.history, 4, "Historique"),
-          ],
-        ),
-      ),
-    );
-  }
-  Widget _listCryptoItem({required String iconUrl, double precent = 0, required String myCrypto, myBalance, myProfit}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: card(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Image.network(
-              '$iconUrl',
-              width: 50,
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    '$myCrypto',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  Text(
-                    '$myProfit',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black45,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '$myBalance',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                Text(
-                  precent >= 0 ? '+ $precent %' : '$precent %',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: precent >= 0 ? Colors.green : Colors.pink,
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),

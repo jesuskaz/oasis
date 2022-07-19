@@ -1,18 +1,21 @@
 import 'package:badges/badges.dart';
-import 'package:chat_project/catalog/credential/signup.dart';
-import 'package:chat_project/screens/homepage.dart';
-import 'package:chat_project/wallet/screen/appro.dart';
-import 'package:chat_project/wallet/screen/home.dart';
-import 'package:chat_project/wallet/screen/pay.dart';
+import 'package:oasisapp/catalog/credential/signup.dart';
+import 'package:oasisapp/screens/homepage.dart';
+import 'package:oasisapp/wallet/screen/appro.dart';
+import 'package:oasisapp/wallet/screen/home.dart';
+import 'package:oasisapp/wallet/screen/pay.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_project/catalog/views/detail.dart';
+import 'package:oasisapp/catalog/views/detail.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:share_plus/share_plus.dart';
+// import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../loading.dart';
 import '../../tool.dart';
 import 'cartdetail.dart';
 import 'navbar.dart';
@@ -24,7 +27,7 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home>
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin
 {
   int numOfItems = 1;
   int quantiteValue = 1;
@@ -101,7 +104,7 @@ class _HomeState extends State<Home>
               FlatButton(
                 child: Text("OUI"),
                 textColor: Colors.white,
-                color: Colors.orange,
+                color: text_color0,
                 onPressed: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -127,7 +130,7 @@ class _HomeState extends State<Home>
               FlatButton(
                 child: Text("Ok"),
                 textColor: Colors.white,
-                color: Colors.orange,
+                color: text_color0,
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -147,8 +150,78 @@ class _HomeState extends State<Home>
       );
     }
   }
+  // Widget _operateur(var operateur, context) {
+  //   return Padding(
+  //     padding: EdgeInsets.all(5),
+  //     child: InkWell(
+  //       onTap: () async {
+  //       },
+  //       child: Container(
+  //         decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(12.0),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                   color: Colors.grey.withOpacity(0.2),
+  //                   spreadRadius: 3.0,
+  //                   blurRadius: 2.0)
+  //             ],
+  //             color: Colors.white),
+  //         child: CachedNetworkImage(
+  //           imageUrl: ressourceBasePath + operateur['image'],
+  //           imageBuilder: (context, imageProvider) => Container(
+  //             margin: EdgeInsets.all(16),
+  //             height: 60.0,
+  //             width: 100.0,
+  //             decoration: BoxDecoration(
+  //               image: DecorationImage(
+  //                 image: imageProvider,
+  //                 fit: BoxFit.cover,
+  //               ),
+  //             ),
+  //           ),
+  //           placeholder: (context, url) => const Loading.rectangular(
+  //             height: double.infinity,
+  //             width: double.infinity,
+  //           ),
+  //           errorWidget: (context, url, error) => Container(
+  //             height: double.infinity,
+  //             width: double.infinity,
+  //             decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(5),
+  //               image: const DecorationImage(
+  //                 image: AssetImage("assets/images/imageindisponible.png"),
+  //                 fit: BoxFit.cover,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Future getOperateur() async {
+
+    String url = apiUrl + "article";
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String token = pref.getString("token").toString();
+
+    final response = await http.get(Uri.parse(url), headers: {'Authorization': "Bearer $token", 'Accept': 'application/json'});
+
+    var rep;
+    if (response.statusCode == 200) {
+      var r = jsonDecode(response.body);
+      if(r["status"] == true)
+        {
+          rep = r["data"];
+        }
+    }
+
+    return rep ?? [];
+  }
 
   int _selectedItemIndex = 0;
+
   GestureDetector buildNavBarAppro(IconData iconLink, int index, String message) {
     return GestureDetector(
       onTap: () {
@@ -338,9 +411,48 @@ class _HomeState extends State<Home>
     );
   }
 
+  late AnimationController animationController;
+  late Animation degOneTranslationAnimation,degTwoTranslationAnimation,degThreeTranslationAnimation;
+  late Animation rotationAnimation;
+
+  double getRadiansFromDegree(double degree) {
+    double unitRadian = 57.295779513;
+    return degree / unitRadian;
+  }
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+  @override
+  void initState() {
+    animationController = AnimationController(vsync: this,duration: Duration(milliseconds: 250));
+    degOneTranslationAnimation = TweenSequence([
+      TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.2), weight: 75.0),
+      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.2,end: 1.0), weight: 25.0),
+    ]).animate(animationController);
+    degTwoTranslationAnimation = TweenSequence([
+      TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.4), weight: 55.0),
+      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.4,end: 1.0), weight: 45.0),
+    ]).animate(animationController);
+    degThreeTranslationAnimation = TweenSequence([
+      TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.75), weight: 35.0),
+      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.75,end: 1.0), weight: 65.0),
+    ]).animate(animationController);
+    rotationAnimation = Tween<double>(begin: 180.0,end: 0.0).animate(CurvedAnimation(parent: animationController
+        , curve: Curves.easeOut));
+    super.initState();
+    animationController.addListener((){
+      setState(() {
+
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context)
   {
+    getOperateur();
     void showAlertDialog(BuildContext context) {
       // ignore: deprecated_member_use
       Widget continueButton = FlatButton(
@@ -352,7 +464,7 @@ class _HomeState extends State<Home>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.orange,
+              color: text_color0,
             ),
           ));
       // set up the AlertDialog
@@ -400,15 +512,16 @@ class _HomeState extends State<Home>
         child: NavBar(),
       ),
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: color_white),
+        backgroundColor: text_color,
         elevation: 1.0,
         centerTitle: true,
-        title: const Text('Oasis Shop',
+        title: const Text(
+            'Oasis Business',
             style: TextStyle(
                 fontFamily: 'Varela',
                 fontSize: 20.0,
-                color: Color(0xFF545D68))),
+                color: Colors.white)),
         actions: <Widget>[
           Container(
             padding: EdgeInsets.all(20.0),
@@ -444,7 +557,7 @@ class _HomeState extends State<Home>
                 ),
                 child: const Icon(
                   Icons.shopping_cart_rounded,
-                  color: Colors.grey,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -456,6 +569,38 @@ class _HomeState extends State<Home>
         scrollDirection: Axis.vertical,
         children: <Widget>[
           SizedBox(height: 12.0),
+          // Expanded(
+          //   child: FutureBuilder(
+          //     future: getOperateur(),
+          //     builder: (BuildContext context, AsyncSnapshot snapshot)
+          //     {
+          //       if (snapshot.data == null) {
+          //         return const Center(
+          //           child: CircularProgressIndicator(),
+          //         );
+          //       }
+          //
+          //       if (!snapshot.hasData) {
+          //         return Container();
+          //       }
+          //
+          //       var op = snapshot.data;
+          //       print("OPERATEUR NEW ::: $op");
+          //       return Container(
+          //         padding: EdgeInsets.all(5.0),
+          //         child: GridView.count(
+          //             padding: EdgeInsets.zero,
+          //             shrinkWrap: true,
+          //             crossAxisCount: 2,
+          //             crossAxisSpacing: 3,
+          //             mainAxisSpacing: 3,
+          //             childAspectRatio: 1.5,
+          //             children: op.map((o) => _operateur(o, context),).toList()),
+          //       );
+          //     },
+          //   ),
+          // ),
+
           SingleChildScrollView(
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.vertical,
@@ -499,26 +644,85 @@ class _HomeState extends State<Home>
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      floatingActionButton: Stack(
         children: [
-          FloatingActionButton(
-            heroTag: "t1",
-            onPressed: (){
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
-            },
-            child: const Icon(Icons.message),
-          ),
-          const SizedBox(height: 10.0,),
-          FloatingActionButton(
-            heroTag: "t2",
-            onPressed: (){
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-            },
-            child: const Icon(Icons.account_balance_wallet),
-          ),
+          Positioned(
+              right: 10,
+              bottom: 10,
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: <Widget>[
+                  IgnorePointer(
+                    child: Container(
+                      color: Colors.transparent,
+                      height: 150.0,
+                      width: 150.0,
+                    ),
+                  ),
+                  Transform.translate(
+                    offset: Offset.fromDirection(getRadiansFromDegree(225),degTwoTranslationAnimation.value * 100),
+                    child: Transform(
+                      transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degTwoTranslationAnimation.value),
+                      alignment: Alignment.center,
+                      child: CircularButton(
+                        color: text_color3,
+                        width: 50,
+                        height: 50,
+                        icon: const Icon(
+                          Icons.message,
+                          color: Colors.white,
+                        ),
+                        onClick: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                        },
+                      ),
+                    ),
+                  ),
+                  Transform.translate(
+                    offset: Offset.fromDirection(getRadiansFromDegree(180),degThreeTranslationAnimation.value * 100),
+                    child: Transform(
+                      transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degThreeTranslationAnimation.value),
+                      alignment: Alignment.center,
+                      child: CircularButton(
+                        color: Color(0xFFEF7532),
+                        width: 50,
+                        height: 50,
+                        icon: const Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.white,
+                        ),
+                        onClick: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                        },
+                      ),
+                    ),
+                  ),
+                  Transform(
+                    transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value)),
+                    alignment: Alignment.center,
+                    child: CircularButton(
+                      color: text_color,
+                      width: 50,
+                      height: 50,
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      onClick: ()
+                      {
+                        if (animationController.isCompleted)
+                        {
+                          animationController.reverse();
+                        }
+                        else
+                        {
+                          animationController.forward();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ))
         ],
       ),
     );
@@ -547,7 +751,7 @@ class _HomeState extends State<Home>
                               addPanier();
                             },
                           icon: const Icon(Icons.shopping_cart_rounded,
-                              color: Color(0xFFEF7532)),
+                              color: text_color0),
                         ),
                         IconButton(
                           onPressed: () async
@@ -556,7 +760,7 @@ class _HomeState extends State<Home>
 
                             final parser = Uri.parse(url);
                             final response = await http.get(parser);
-                            await Share.share(url);
+                            // await Share.share(url);
                             final byte = response.bodyBytes;
 
                             final temp = await getTemporaryDirectory();
@@ -564,7 +768,7 @@ class _HomeState extends State<Home>
                             // File(path).writeAsBytesSync(byte);
 
                           },
-                          icon: Icon(Icons.share, color: Color(0xFFEF7532)),
+                          icon: Icon(Icons.share, color: text_color0),
                         )
                       ])),
               InkWell(
@@ -589,12 +793,12 @@ class _HomeState extends State<Home>
               SizedBox(height: 7.0),
               Text(price,
                   style: const TextStyle(
-                      color: Color(0xFFCC8053),
+                      color: text_color0,
                       fontFamily: 'Varela',
                       fontSize: 14.0)),
               Text(name,
                   style: const TextStyle(
-                      color: Color(0xFF575E67),
+                      color: text_color0,
                       fontFamily: 'Varela',
                       fontSize: 14.0)),
               Padding(
@@ -606,11 +810,11 @@ class _HomeState extends State<Home>
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: const [
                         Icon(Icons.shopping_basket,
-                            color: Color(0xFFD17E50), size: 12.0),
+                            color: text_color0, size: 12.0),
                         Text('Ajouter au panier',
                             style: TextStyle(
                                 fontFamily: 'Varela',
-                                color: Color(0xFFD17E50),
+                                color: text_color0,
                                 fontSize: 12.0))
                       ]))
             ])));

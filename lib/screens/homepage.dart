@@ -1,9 +1,9 @@
-import 'package:chat_project/catalog/component/navbar.dart';
-import 'package:chat_project/catalog/views/home.dart' as homeView;
-import 'package:chat_project/screens/accueil.dart';
-import 'package:chat_project/screens/appel.dart';
-import 'package:chat_project/screens/look.dart';
-import 'package:chat_project/wallet/screen/home.dart';
+import 'package:oasisapp/catalog/component/navbar.dart';
+import 'package:oasisapp/catalog/views/home.dart' as homeView;
+import 'package:oasisapp/screens/accueil.dart';
+import 'package:oasisapp/screens/appel.dart';
+import 'package:oasisapp/screens/look.dart';
+import 'package:oasisapp/wallet/screen/home.dart';
 import 'package:flutter/material.dart';
 
 import '../tool.dart';
@@ -84,8 +84,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         backgroundColor: text_color,
         elevation: 1.0,
         centerTitle: true,
-        title: const Text('OasisApp',
-            style: style_init),
+        title: const Text('OasisApp', style: style_init),
         actions: [
           IconButton(
               onPressed: (){
@@ -185,34 +184,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ],
               ))
         ],
-        // child: Column(
-        //   mainAxisAlignment: MainAxisAlignment.end,
-        //   children: [
-        //     SizedBox(
-        //       height: 40,
-        //       width: 40,
-        //       child: FloatingActionButton(
-        //         backgroundColor: text_color,
-        //         heroTag: "t1",
-        //         onPressed: (){
-        //           Navigator.push(context, MaterialPageRoute(builder: (context) => const homeView.Home()));
-        //         },
-        //         child: const Icon(
-        //             Icons.add_business_rounded,
-        //         ),
-        //       ),
-        //     ),
-        //     const SizedBox(height: 10.0,),
-        //     FloatingActionButton(
-        //       backgroundColor: text_color,
-        //       heroTag: "t2",
-        //       onPressed: (){
-        //         Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-        //       },
-        //       child: const Icon(Icons.account_balance_wallet,),
-        //     ),
-        //   ],
-        // ),
       ),
       bottomNavigationBar: Container(
         height: size.height * 0.085,

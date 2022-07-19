@@ -1,5 +1,5 @@
-import 'package:chat_project/catalog/credential/signin.dart';
-import 'package:chat_project/module/MyProvider.dart';
+import 'package:oasisapp/catalog/credential/signin.dart';
+import 'package:oasisapp/module/MyProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -1,7 +1,7 @@
-import 'package:chat_project/catalog/views/boutique.dart';
+import 'package:oasisapp/catalog/views/boutique.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

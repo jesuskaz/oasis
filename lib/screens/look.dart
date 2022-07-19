@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:chat_project/screens/chat.dart';
+import 'package:oasisapp/screens/chat.dart';
 import '../tool.dart';
 
 class Look extends StatefulWidget

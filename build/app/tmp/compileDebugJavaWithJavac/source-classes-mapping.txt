@@ -1,6 +1,0 @@
-io/flutter/plugins/GeneratedPluginRegistrant.java
- io.flutter.plugins.GeneratedPluginRegistrant
-com/example/chat_project/BuildConfig.java
- com.example.chat_project.BuildConfig
-com/example/chat_project/MainActivity.java
- com.example.chat_project.MainActivity

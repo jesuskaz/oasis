@@ -1,6 +1,6 @@
-import 'package:chat_project/tool.dart';
-import 'package:chat_project/catalog/views/detail.dart';
-import 'package:chat_project/catalog/views/product_model.dart';
+import 'package:oasisapp/tool.dart';
+import 'package:oasisapp/catalog/views/detail.dart';
+import 'package:oasisapp/catalog/views/product_model.dart';
 import 'package:flutter/material.dart';
 
 class Boutique extends StatefulWidget {

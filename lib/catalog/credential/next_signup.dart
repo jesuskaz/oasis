@@ -1,14 +1,17 @@
-import 'package:chat_project/catalog/views/home.dart';
+import 'dart:async';
+
+import 'package:connectivity/connectivity.dart';
+import 'package:oasisapp/catalog/views/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 
 class NextSignup extends StatefulWidget {
   String tel;
@@ -34,6 +37,42 @@ class _NextSignupState extends State<NextSignup>
   TextEditingController confirm = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  Connectivity connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> subscription;
+  bool networkOK = false;
+  var noInternet = '';
+
+  void checkNetwork() async {
+    subscription = connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
+      if (mounted) {
+        setState(() {
+          networkOK = result == ConnectivityResult.none ? false : true;
+          if (networkOK) {
+            noInternet = '';
+          }
+        });
+      }
+    });
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult != ConnectivityResult.none) {
+      setState(() {
+        networkOK = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
+
+  @override
+  initState() {
+    checkNetwork();
+    super.initState();
+  }
+
   showProgress() {
     progressDialog = ProgressDialog(
       context: context,
@@ -43,50 +82,67 @@ class _NextSignupState extends State<NextSignup>
     );
     progressDialog.show();
   }
-  Future register() async {
-    String url = apiUrl+"auth/register";
-    showProgress();
-    var res = await http.post(
-        Uri.parse(url),
-        headers: <String, String>{
-          'Accept': 'application/json; charset=UTF-8',
-        },
-        body: {
+  Future register() async
+  {
+    setState(() {
+      noInternet = '';
+    });
+
+    if(networkOK)
+      {
+        showProgress();
+        String url = apiUrl+"auth/register";
+
+        var data = {
           "name": nom.text,
           "email": widget.email,
           "phone": widget.tel,
           "password": password.text,
           "cpassword": confirm.text,
           "user_role": "marchand"
-        });
-    progressDialog.dismiss();
+        };
 
-    if(res.statusCode == 400)
-      {
-        var data = jsonDecode(res.body);
-        Fluttertoast.showToast(
-            msg: "${data["data"]["errors_msg"][0]}",
-            toastLength: Toast.LENGTH_LONG,
+        await http.post(Uri.parse(url), headers: <String, String>{
+          'Accept': 'application/json; charset=UTF-8',},
+            body: data).timeout(const Duration(seconds: 10)).then((res) async {
+
+          progressDialog.dismiss();
+          if(res.statusCode == 400)
+          {
+            var data = jsonDecode(res.body);
+            Fluttertoast.showToast(
+                msg: "${data["data"]["errors_msg"][0]}",
+                toastLength: Toast.LENGTH_LONG,
+                backgroundColor: Colors.white,
+                textColor: Colors.grey);
+          }
+          if(res.statusCode == 200)
+          {
+            var data = jsonDecode(res.body);
+            String token = data["data"]["token"];
+
+            preferences = await SharedPreferences.getInstance();
+            preferences.setString("token", token);
+
+            Fluttertoast.showToast(
+                msg: " Votre Compte a été crée avec succès",
+                toastLength: Toast.LENGTH_LONG,
+                backgroundColor: Colors.white,
+                textColor: Colors.grey);
+
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+          }
+        }).catchError((onError){
+          progressDialog.dismiss();
+          Fluttertoast.showToast(
+            msg: "Erreur de connexion réseau.",
+            toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.white,
-            textColor: Colors.grey);
+            textColor: Colors.black,
+          );
+        });
       }
-    if(res.statusCode == 200)
-    {
-      var data = jsonDecode(res.body);
-      String token = data["data"]["token"];
-
-      preferences = await SharedPreferences.getInstance();
-      preferences.setString("token", token);
-
-      Fluttertoast.showToast(
-          msg: " Votre Compte a été crée avec succès",
-          toastLength: Toast.LENGTH_LONG,
-          backgroundColor: Colors.white,
-          textColor: Colors.grey);
-
-      Navigator.pop(context);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
-    }
   }
   Widget _motdePasse(
       IconData icon,
@@ -104,7 +160,7 @@ class _NextSignupState extends State<NextSignup>
           validator: (value) {
             if (value!.isEmpty)
             {
-              return "Mot de passe Obligatoire";
+              return "Password Required";
             } else {
               return null;
             }
@@ -202,7 +258,7 @@ class _NextSignupState extends State<NextSignup>
               }
             if (value!.isEmpty)
             {
-              return "Mot de passe Obligatoire";
+              return "Password Required";
             } else {
               return null;
             }

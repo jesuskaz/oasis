@@ -1,7 +1,7 @@
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_project/wallet//component.dart';
+import 'package:oasisapp/wallet//component.dart';
 
 import 'appro.dart';
 import 'home.dart';

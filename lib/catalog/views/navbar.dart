@@ -1,9 +1,11 @@
-import 'package:chat_project/catalog/views/home.dart';
+import 'package:oasisapp/catalog/views/boutique.dart';
+import 'package:oasisapp/catalog/views/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/catalog/views/option_boutique.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:http/http.dart' as http;
-import 'package:chat_project/page/qr_create_page.dart';
+import 'package:oasisapp/page/qr_create_page.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,8 +29,7 @@ class _NavBar extends State<NavBar> {
 
   String compte = '';
 
-  Future getCompte() async
-  {
+  Future getCompte() async {
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("token").toString();
@@ -163,39 +164,7 @@ class _NavBar extends State<NavBar> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (BuildContext context) => Home()));
-              }),
-          ListTile(
-              leading: Icon(Icons.assignment_sharp),
-              title: const Text(
-                "Commandes",
-                style: TextStyle(
-                  color: color_grey,
-                  fontSize: taille2,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Container()));
-              }),
-          ListTile(
-              leading: Icon(Icons.download),
-              title: const Text(
-                "Arrivage",
-                style: TextStyle(
-                  color: color_grey,
-                  fontSize: taille2,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Container()));
+                        builder: (BuildContext context) => Option_boutique()));
               }),
           const Divider(height: 1),
           ListTile(

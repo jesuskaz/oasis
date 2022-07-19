@@ -1,8 +1,8 @@
-import 'package:chat_project/catalog/credential/next_signup.dart';
-import 'package:chat_project/catalog/credential/signin.dart';
+import 'package:oasisapp/catalog/credential/next_signup.dart';
+import 'package:oasisapp/catalog/credential/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 

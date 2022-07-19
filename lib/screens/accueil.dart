@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:chat_project/screens/chat.dart';
+import 'package:oasisapp/screens/chat.dart';
 import '../tool.dart';
 
 class Accueil extends StatefulWidget {
@@ -9,8 +9,7 @@ class Accueil extends StatefulWidget {
   State<Accueil> createState() => _AccueilState();
 }
 
-class _AccueilState extends State<Accueil>
-{
+class _AccueilState extends State<Accueil> {
   @override
   Widget build(BuildContext context)
   {
@@ -40,23 +39,6 @@ class _AccueilState extends State<Accueil>
             ),
           ),
           const SizedBox(height: 10),
-          // Container(
-          //   padding: EdgeInsets.only(right: 15, left: 15),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: const [
-          //       Text('Messages',
-          //         style: style_init1,
-          //       ),
-          //       Text('Look',
-          //         style: style_init1,
-          //       ),
-          //       Text('Appel',
-          //         style: style_init1,
-          //       ),
-          //     ]
-          //   ),
-          // ),
           SizedBox(height: 25),
           Expanded(
             child: ListView(

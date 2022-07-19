@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:ui';
-import 'package:chat_project/catalog/views/home.dart';
-import 'package:chat_project/solde.dart';
-import 'package:chat_project/wallet/component/appBar.dart';
-import 'package:chat_project/wallet/component/card.dart';
-import 'package:chat_project/wallet/screen/home.dart';
+import 'package:oasisapp/catalog/views/home.dart';
+import 'package:oasisapp/solde.dart';
+import 'package:oasisapp/wallet/component/appBar.dart';
+import 'package:oasisapp/wallet/component/card.dart';
+import 'package:oasisapp/wallet/screen/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
@@ -521,16 +521,12 @@ class _Pay extends State<Pay>
 
     return Scaffold(
       backgroundColor: Colors.blueGrey[50],
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0),
-        child: SafeArea(
-          child: appBar(
-              left: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Icon(Icons.arrow_back_ios, color: Colors.black54)),
-              title: 'Oasis-Wallet',
-              right: Icon(Icons.more_vert, color: Colors.black54)),
-        ),
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: color_white),
+        backgroundColor: text_color,
+        elevation: 1.0,
+        centerTitle: true,
+        title: const Text('Oasis-wallet', style: style_init),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,

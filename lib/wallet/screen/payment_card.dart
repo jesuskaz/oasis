@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:chat_project/wallet/component/appBar.dart';
+import 'package:oasisapp/wallet/component/appBar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -11,7 +11,7 @@ import '../../tool.dart';
 import 'appro.dart';
 import 'detail_wallet.dart';
 import 'home.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 
 class Payment_cart extends StatefulWidget
 {
@@ -29,7 +29,7 @@ class _Payment_cartState extends State<Payment_cart>
 
   List listData = [];
   late ProgressDialog progressDialog;
-  int id_f = 0;
+  late int id_f;
   late SharedPreferences preferences;
 
   Future getOperateur() async {
@@ -48,6 +48,7 @@ class _Payment_cartState extends State<Payment_cart>
     String url = apiUrl + "devise";
 
     final response = await http.get(Uri.parse(url), headers: {'Accept': 'application/json'});
+
     if (response.statusCode == 200)
     {
       var r = json.decode(response.body);
@@ -69,7 +70,7 @@ class _Payment_cartState extends State<Payment_cart>
   @override
   initState() {
     super.initState();
-    getDevise();
+
   }
   showProgress() {
     progressDialog = ProgressDialog(
@@ -83,24 +84,26 @@ class _Payment_cartState extends State<Payment_cart>
   hideProgress() {
     progressDialog.dismiss();
   }
+
   Future appro(int operateur_id) async {
+    var data = {
+      "operateur_id": operateur_id.toString(),
+      "devise_id": id_f.toString(),
+      "montant": widget.montant,
+      "source": "appro"
+    };
+
+
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("token").toString();
 
     showProgress();
-    var res = await http.post(
-        Uri.parse(apiUrl+"appro"),
-        headers: <String, String>{
-          'Authorization': "Bearer ${token}",'Accept': 'application/json; charset=UTF-8',
-        },
-        body: {
-          "operateur_id": operateur_id.toString(),
-          "devise_id": id_f.toString(),
-          "montant": widget.montant,
-          "source": "appro"
-        });
-    progressDialog.dismiss();
+    var res = await http.post(Uri.parse(apiUrl+"appro"), headers: <String, String>{
+          'Authorization': "Bearer ${token}",'Accept': 'application/json; charset=UTF-8',},
+        body: data);
 
+    progressDialog.dismiss();
+    debugPrint("MESSAGE ::: ${res.body}");
     if(res.statusCode == 200)
       {
         var data = jsonDecode(res.body);
@@ -147,7 +150,7 @@ class _Payment_cartState extends State<Payment_cart>
     else
       {
         Fluttertoast.showToast(
-            msg: " Votre Approvisionnement a échoué",
+            msg: "Votre Approvisionnement a échoué",
             toastLength: Toast.LENGTH_LONG,
             backgroundColor: Colors.white,
             textColor: Colors.grey);
@@ -161,7 +164,7 @@ class _Payment_cartState extends State<Payment_cart>
         AlertDialog alert = AlertDialog(
           content: SingleChildScrollView(
             child: ListBody(
-              children: [
+              children: const [
                 Text(
                   "Voulez-vous retourner ? ",
                 ),
@@ -177,7 +180,7 @@ class _Payment_cartState extends State<Payment_cart>
               },
               color: Colors.orange,
               textColor: Colors.white,
-              child: Text(
+              child: const Text(
                 'NON',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -193,7 +196,7 @@ class _Payment_cartState extends State<Payment_cart>
               },
               color: Colors.orange,
               textColor: Colors.white,
-              child: Text(
+              child: const Text(
                 'OUI',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -210,7 +213,7 @@ class _Payment_cartState extends State<Payment_cart>
       },
       color: Colors.orange,
       textColor: Colors.white,
-      child: Text(
+      child: const Text(
         'RETOUR',
         style: TextStyle(
           fontWeight: FontWeight.bold,
@@ -226,7 +229,7 @@ class _Payment_cartState extends State<Payment_cart>
       },
       color: Colors.orange,
       textColor: Colors.white,
-      child: Text(
+      child: const Text(
         'CONFIRMER L\'APPRO',
         style: TextStyle(
           fontWeight: FontWeight.bold,
@@ -238,14 +241,14 @@ class _Payment_cartState extends State<Payment_cart>
       content: SingleChildScrollView(
         child: ListBody(
           children: [
-            Text(
+            const Text(
               "Voulez-vous confirmer cet approvisionnement ?",
               style: TextStyle(
                 fontWeight: FontWeight.bold
               ),
             ),
             SizedBox(height: 10,),
-            Text(
+            const Text(
               "Cliquez sur confirmer pour effectuer votre paiement",
               style: TextStyle(
                 color: text_color3
@@ -272,6 +275,7 @@ class _Payment_cartState extends State<Payment_cart>
   @override
   Widget build(BuildContext context)
   {
+    getDevise();
     int _selectedItemIndex = 0;
 
     GestureDetector buildNavBarAppro(IconData iconLink, int index, String message) {
@@ -465,16 +469,12 @@ class _Payment_cartState extends State<Payment_cart>
     
     return Scaffold(
       backgroundColor: Colors.blueGrey[50],
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0),
-        child: SafeArea(
-          child: appBar(
-              left: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Icon(Icons.arrow_back_ios, color: Colors.black54)),
-              title: 'Oasis-Wallet',
-              right: Icon(Icons.more_vert, color: Colors.black54)),
-        ),
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: color_white),
+        backgroundColor: text_color,
+        elevation: 1.0,
+        centerTitle: true,
+        title: const Text('Oasis-wallet', style: style_init),
       ),
       body: ListView(
         scrollDirection: Axis.vertical,

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:chat_project/send_menu_items.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/send_menu_items.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -48,8 +48,7 @@ class ChatPageState extends State<ChatPage> {
     super.initState();
   }
 
-  channelconnect()
-  {
+  channelconnect() {
     //function to connect
     try{
       channel = IOWebSocketChannel.connect("ws://192.168.43.3:6060/$myid"); //channel IP : Port
@@ -102,8 +101,7 @@ class ChatPageState extends State<ChatPage> {
       print("error on connecting to websocket.");
     }
   }
-  Future<void> sendmsg(String sendmsg, String id) async
-  {
+  Future<void> sendmsg(String sendmsg, String id) async {
     if(connected == true)
     {
       String msg = "{'auth':'$auth','cmd':'send','userid':'$id', 'msgtext':'$sendmsg'}";
@@ -181,8 +179,6 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context)
   {
     final isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
-
-    print("CONNECTED ::: ${connected}");
 
     return Scaffold(
         appBar: AppBar(

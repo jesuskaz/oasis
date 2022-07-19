@@ -1,6 +1,6 @@
-import 'package:chat_project/tool.dart';
-import 'package:chat_project/wallet/component/card.dart';
-import 'package:chat_project/wallet/screen/detail_wallet.dart';
+import 'package:oasisapp/tool.dart';
+import 'package:oasisapp/wallet/component/card.dart';
+import 'package:oasisapp/wallet/screen/detail_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -31,9 +31,10 @@ class _SoldeState extends State<Solde>
     if (response.statusCode == 200)
     {
       var r = json.decode(response.body);
-      setState(() {
-        listData = r["data"];
-      });
+      if(mounted)
+        setState(() {
+          listData = r["data"];
+        });
     }
   }
   @override
@@ -44,6 +45,8 @@ class _SoldeState extends State<Solde>
   @override
   Widget build(BuildContext context)
   {
+    getSolde();
+
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -105,62 +108,13 @@ class _SoldeState extends State<Solde>
                     const SizedBox(height: 10),
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         Container(
-                          child: listData.isEmpty ? Center(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: const [
-                                  SizedBox(
-                                    child: CircularProgressIndicator(
-                                      backgroundColor: Colors.white,
-                                      color: Colors.orange,
-                                    ),
-                                    height: 20,
-                                    width: 20,
-                                  ),
-                                ],
-                              )) : Text(listData.isEmpty ? "USD 0" : "${listData[1]["devise"]} ${listData[1]["montant"]}",
+                          child: Text(listData.isEmpty ? "USD 0" : "${listData[0]["devise"]} ${listData[0]["montant"]}",
                             style: const TextStyle(fontWeight: FontWeight.bold,
                                 fontSize: 18, color: text_color1),)
                         ),
-                        // FutureBuilder(
-                        //     future: getSolde(),
-                        //     builder: (context, snapshot)
-                        //     {
-                        //       if(snapshot.data == null)
-                        //       {
-                        //         return Center(
-                        //             child: Column(
-                        //               crossAxisAlignment: CrossAxisAlignment.center,
-                        //               children: const [
-                        //                 SizedBox(
-                        //                   child: CircularProgressIndicator(
-                        //                     backgroundColor: Colors.white,
-                        //                     color: Colors.orange,
-                        //                   ),
-                        //                   height: 20,
-                        //                   width: 20,
-                        //                 ),
-                        //               ],
-                        //             ));
-                        //       }
-                        //       else
-                        //       {
-                        //         var save = snapshot.data as List;
-                        //         return Text(save.isEmpty ? "USD 0" : "${save[1]["devise"]} ${save[1]["montant"]}",
-                        //           style: const TextStyle(fontWeight: FontWeight.bold,
-                        //               fontSize: 18, color: text_color1),);
-                        //       }
-                        //     }
-                        // ),
                       ],
                     ),
-                    const SizedBox(height: 5),
-                    const Center(
-                      child: Icon(Icons.keyboard_arrow_down,
-                        size: 30, color: text_color1,),
-                    )
                   ],
                 ),
               ),
@@ -238,50 +192,12 @@ class _SoldeState extends State<Solde>
                                     width: 20,
                                   ),
                                 ],
-                              )) : Text(listData.isEmpty ? "CDF 0 " : "${listData[0]["devise"]} ${listData[0]["montant"]}",
+                              )) : Text(listData.isEmpty ? "CDF 0 " : "${listData[1]["devise"]} ${listData[1]["montant"]}",
                             style: const TextStyle(fontWeight: FontWeight.bold,
                                 fontSize: 18, color: text_color1),),
                         )
-                        // FutureBuilder(
-                        //     future: getSolde(),
-                        //     builder: (context, snapshot)
-                        //     {
-                        //       if(snapshot.data == null)
-                        //         {
-                        //           return Center(
-                        //               child: Column(
-                        //                 crossAxisAlignment: CrossAxisAlignment.center,
-                        //                 children: const [
-                        //                   SizedBox(
-                        //                     child: CircularProgressIndicator(
-                        //                       backgroundColor: Colors.white,
-                        //                       color: Colors.green,
-                        //                     ),
-                        //                     height: 20,
-                        //                     width: 20,
-                        //                   ),
-                        //                 ],
-                        //               ));
-                        //         }
-                        //       else
-                        //         {
-                        //           var save = snapshot.data as List;
-                        //
-                        //           return Text(save.isEmpty ? "CDF 0 " : "${save[0]["devise"]} ${save[0]["montant"]}",
-                        //             style: const TextStyle(fontWeight: FontWeight.bold,
-                        //                 fontSize: 18, color: text_color1),);
-                        //         }
-                        //     }
-                        // ),
                       ],
                     ),
-                    const SizedBox(height: 5),
-                    const Center(
-                      child: Icon(Icons.keyboard_arrow_down,
-                        size: 30, color: text_color1,
-                      ),
-
-                    )
                   ],
                 ),
               ),

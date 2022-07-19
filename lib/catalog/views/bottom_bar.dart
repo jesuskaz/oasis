@@ -1,5 +1,5 @@
-import 'package:chat_project/catalog/credential/signin.dart';
-import 'package:chat_project/catalog/credential/signup.dart';
+import 'package:oasisapp/catalog/credential/signin.dart';
+import 'package:oasisapp/catalog/credential/signup.dart';
 import 'package:flutter/material.dart';
 
 class BottomBar extends StatelessWidget {

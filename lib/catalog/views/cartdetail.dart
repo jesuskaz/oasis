@@ -1,9 +1,9 @@
-import 'package:chat_project/catalog/views/utils.dart';
+import 'package:oasisapp/catalog/views/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'utils.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

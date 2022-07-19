@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "D:\\chat_project\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-zh\\values-zh.xml",
+            "outputFile": "D:\\oasisapp\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-zh\\values-zh.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Kid\\.gradle\\caches\\transforms-2\\files-2.1\\3d5fc6f427a05fa7ee6da29bdc961d9f\\jetified-ucrop-2.2.8\\res\\values-zh\\values-zh.xml",
+                    "source": "C:\\Users\\Kid\\.gradle\\caches\\transforms-3\\63d03f02ed913624f4c44bac8d88769a\\transformed\\jetified-ucrop-2.2.8\\res\\values-zh\\values-zh.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7",
                         "startColumns": "4,4,4,4,4,4",

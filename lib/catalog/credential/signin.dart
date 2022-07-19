@@ -1,9 +1,12 @@
-import 'package:chat_project/catalog/credential/signup.dart';
-import 'package:chat_project/catalog/views/home.dart';
-import 'package:chat_project/screens/homepage.dart';
+import 'dart:async';
+
+import 'package:oasisapp/catalog/credential/signup.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:oasisapp/catalog/views/home.dart';
+import 'package:oasisapp/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:chat_project/tool.dart';
+import 'package:oasisapp/tool.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
@@ -34,6 +37,43 @@ class _SigninScreenState extends State<SigninScreen>
   final _formKey = GlobalKey<FormState>();
 
   var tel;
+
+  Connectivity connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> subscription;
+  bool networkOK = false;
+  var noInternet = '';
+
+  void checkNetwork() async {
+    subscription = connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
+      if (mounted) {
+        setState(() {
+          networkOK = result == ConnectivityResult.none ? false : true;
+          if (networkOK) {
+            noInternet = '';
+          }
+        });
+      }
+    });
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult != ConnectivityResult.none) {
+      setState(() {
+        networkOK = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
+
+  @override
+  initState() {
+    checkNetwork();
+    super.initState();
+  }
+
   Widget _telephone(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
@@ -74,8 +114,7 @@ class _SigninScreenState extends State<SigninScreen>
           initialValue: number,
           textFieldController: phone,
           formatInput: false,
-          keyboardType:
-              const TextInputType.numberWithOptions(signed: true, decimal: true),
+          keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
           inputBorder: const OutlineInputBorder(),
           onSaved: (PhoneNumber number) {},
         ),
@@ -93,7 +132,7 @@ class _SigninScreenState extends State<SigninScreen>
           style: TextStyle(color: color_grey),
           validator: (value) {
             if (value!.isEmpty) {
-              return "Mot de passe Obligatoire";
+              return "Password Required";
             } else {
               return null;
             }
@@ -138,41 +177,75 @@ class _SigninScreenState extends State<SigninScreen>
     progressDialog.show();
   }
   Future login() async {
-    String url = apiUrl + "auth/login";
-    showProgress();
 
-    var res = await http.post(Uri.parse(url), headers: <String, String>{
-      'Accept': 'application/json; charset=UTF-8',
-    },
-        body: {
-          "login": tel,
-          "password": password.text,
-        });
+    setState(() {
+      noInternet = '';
+    });
 
-    progressDialog.dismiss();
-
-    if (res.statusCode == 400)
+    if(networkOK)
     {
-      var data = jsonDecode(res.body);
-      Fluttertoast.showToast(
-          msg: "${data["data"]["errors_msg"][0]}",
+      showProgress();
+      String url = apiUrl + "auth/login";
+
+      var data =  {
+        "login": tel,
+        "password": password.text,
+      };
+
+      http.post(Uri.parse(url), body: data,).timeout(const Duration(seconds: 40)).then((res) async {
+        progressDialog.dismiss();
+
+        print(res.statusCode);
+        print("MESSAGE ::: ${res.body}");
+
+        if (res.statusCode == 400)
+        {
+          var data = jsonDecode(res.body);
+          Fluttertoast.showToast(
+              msg: "${data["data"]["errors_msg"][0]}",
+              toastLength: Toast.LENGTH_LONG,
+              backgroundColor: Colors.white,
+              textColor: Colors.grey);
+        }
+        if (res.statusCode == 200)
+        {
+          var data = jsonDecode(res.body);
+          String token = data["data"]["token"];
+          preferences = await SharedPreferences.getInstance();
+          preferences.setString("token", token);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => HomePage(),));
+        }
+      }).catchError((onError){
+        progressDialog.dismiss();
+
+        print(onError);
+        // print(onError.response!.headers);
+        // print(onError.response!.requestOptions);
+
+        Fluttertoast.showToast(
+          msg: "Impossible d'atteindre le serveur distant.",
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.white,
+          textColor: Colors.black,
+        );
+      });
+    }
+    else
+      {
+        Fluttertoast.showToast(
+          msg: "Vérifiez votre connexion internet.",
           toastLength: Toast.LENGTH_LONG,
           backgroundColor: Colors.white,
-          textColor: Colors.grey);
-    }
-    if (res.statusCode == 200)
-    {
-      var data = jsonDecode(res.body);
-      String token = data["data"]["token"];
-      preferences = await SharedPreferences.getInstance();
-      preferences.setString("token", token);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomePage(),));
-    }
+          textColor: Colors.black,
+        );
+
+ }
   }
 
   @override
   Widget build(BuildContext context) {
+
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -286,7 +359,7 @@ class _SigninScreenState extends State<SigninScreen>
                                     builder: (context) => SignupScreen()));
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 0),
                             child: RichText(
                               textAlign: TextAlign.start,
                               text: const TextSpan(
