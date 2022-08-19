@@ -90,7 +90,7 @@ class _BoutiqueState extends State<Boutique> {
                   height: 20.0,
                   width: 20.0,
                   decoration: BoxDecoration(
-                      color: color_orange,
+                      color: text_color,
                       borderRadius: BorderRadius.circular(10.0)),
                   child: const Center(
                     child: Text(
@@ -171,7 +171,7 @@ class _BoutiqueState extends State<Boutique> {
                                   child: FlatButton(
                                     padding: EdgeInsets.all(10),
                                     onPressed: () {},
-                                    color: Colors.orange,
+                                    color: text_color,
                                     child: const Icon(
                                       Icons.arrow_forward,
                                       size: 30.0,
@@ -362,7 +362,7 @@ class ProductCarousel extends StatelessWidget
             Container(
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
-                  color: color_orange),
+                  color: text_color),
               child: FlatButton(
                 onPressed: () => Container(),
                 child: const Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:oasisapp/tool.dart';
 
 void main() => runApp(MyApp());
 
@@ -130,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degThreeTranslationAnimation.value),
                           alignment: Alignment.center,
                           child: CircularButton(
-                            color: Colors.orangeAccent,
+                            color: text_color,
                             width: 50,
                             height: 50,
                             icon: Icon(

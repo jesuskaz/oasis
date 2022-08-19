@@ -60,7 +60,7 @@ class _SoldeState extends State<Solde>
             );
           },
           child: SizedBox(
-            height: size.height * 0.25,
+            height: size.height * 0.20,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: cardUSD(
@@ -127,7 +127,7 @@ class _SoldeState extends State<Solde>
             );
           },
           child: SizedBox(
-            height: size.height * 0.25,
+            height: size.height * 0.20,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: cardCDF(
@@ -143,7 +143,7 @@ class _SoldeState extends State<Solde>
                           child: Material(
                             color: text_color1,
                             child: InkWell(
-                              splashColor: Colors.orange, // inkwell color
+                              splashColor: text_color, // inkwell color
                               child: const SizedBox(
                                   width: 40,
                                   height: 40,

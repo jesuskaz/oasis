@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:oasisapp/catalog/credential/forgot_password.dart';
 import 'package:oasisapp/catalog/credential/signup.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:oasisapp/catalog/views/home.dart';
 import 'package:oasisapp/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +14,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({Key? key}) : super(key: key);
@@ -55,7 +57,8 @@ class _SigninScreenState extends State<SigninScreen>
       }
     });
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult != ConnectivityResult.none) {
+    if (connectivityResult != ConnectivityResult.none)
+    {
       setState(() {
         networkOK = true;
       });
@@ -70,10 +73,43 @@ class _SigninScreenState extends State<SigninScreen>
 
   @override
   initState() {
+    _askPermissions();
     checkNetwork();
     super.initState();
   }
 
+  Future<void> _askPermissions() async {
+    PermissionStatus permissionStatus = await _getContactPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      Fluttertoast.showToast(
+          msg: "Accès donné avec succès",
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.white,
+          textColor: Colors.grey);
+    } else {
+      _handleInvalidPermissions(permissionStatus);
+    }
+  }
+  Future<PermissionStatus> _getContactPermission() async {
+    PermissionStatus permission = await Permission.contacts.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.permanentlyDenied) {
+      PermissionStatus permissionStatus = await Permission.contacts.request();
+      return permissionStatus;
+    } else {
+      return permission;
+    }
+  }
+  void _handleInvalidPermissions(PermissionStatus permissionStatus) {
+    if (permissionStatus == PermissionStatus.denied) {
+      final snackBar = SnackBar(content: Text('Access to contact data denied'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
+      final snackBar =
+      SnackBar(content: Text('Contact data not available on device'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
   Widget _telephone(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
@@ -195,9 +231,6 @@ class _SigninScreenState extends State<SigninScreen>
       http.post(Uri.parse(url), body: data,).timeout(const Duration(seconds: 40)).then((res) async {
         progressDialog.dismiss();
 
-        print(res.statusCode);
-        print("MESSAGE ::: ${res.body}");
-
         if (res.statusCode == 400)
         {
           var data = jsonDecode(res.body);
@@ -210,18 +243,26 @@ class _SigninScreenState extends State<SigninScreen>
         if (res.statusCode == 200)
         {
           var data = jsonDecode(res.body);
-          String token = data["data"]["token"];
-          preferences = await SharedPreferences.getInstance();
-          preferences.setString("token", token);
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => HomePage(),));
+
+          if(data["status"] == true)
+            {
+              String token = data["data"]["token"];
+              var user = data["data"]["user"];
+              String user_id = user["id"].toString();
+              String avatar = user["avatar"].toString();
+
+              preferences = await SharedPreferences.getInstance();
+              preferences.setString("token", token);
+              preferences.setString("user_id", user_id);
+
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => HomePage(),));
+            }
         }
       }).catchError((onError){
         progressDialog.dismiss();
 
         print(onError);
-        // print(onError.response!.headers);
-        // print(onError.response!.requestOptions);
 
         Fluttertoast.showToast(
           msg: "Impossible d'atteindre le serveur distant.",
@@ -239,13 +280,12 @@ class _SigninScreenState extends State<SigninScreen>
           backgroundColor: Colors.white,
           textColor: Colors.black,
         );
-
- }
+      }
   }
 
   @override
-  Widget build(BuildContext context) {
-
+  Widget build(BuildContext context)
+  {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -309,7 +349,9 @@ class _SigninScreenState extends State<SigninScreen>
                               Container(
                                 alignment: Alignment.centerLeft,
                                 child: FlatButton(
-                                  onPressed: () => print("Mot de passe oublié"),
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Password_forgot()));
+                                  },
                                   padding: EdgeInsets.only(left: 0),
                                   child: Row(children: const [
                                     Text(
@@ -318,7 +360,7 @@ class _SigninScreenState extends State<SigninScreen>
                                     ),
                                     Text(
                                       "oublié?",
-                                      style: TextStyle(color: Colors.orange),
+                                      style: TextStyle(color: text_color),
                                     )
                                   ]),
                                 ),

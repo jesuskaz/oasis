@@ -5,10 +5,14 @@ import 'package:oasisapp/tool.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/io.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  String receiver_id;
+  String name;
+
+  ChatPage(this.receiver_id, this.name);
 
   @override
   State<StatefulWidget> createState()
@@ -21,15 +25,14 @@ class ChatPageState extends State<ChatPage> {
   late IOWebSocketChannel channel; //channel varaible for websocket
   late bool connected; // boolean value to track connection status
 
-  String myid = "111"; //my id
-  String recieverid = "222"; //reciever id
-  // swap myid and recieverid value on another mobile to test send and recieve
   String auth = "chatapphdfgjd34534hjdfk"; //auth key
   String ontap = '';
 
   List<MessageData> msglist = [];
-
   TextEditingController msgtext = TextEditingController();
+
+  String user_id = '';
+  bool message_not_send = true;
 
   List<SendMenuItems> menuItems = [
     SendMenuItems(text: "Photos & Videos", icons: Icons.image, color: Colors.amber),
@@ -40,18 +43,25 @@ class ChatPageState extends State<ChatPage> {
   ];
 
   @override
-  void initState()
-  {
+  void initState() {
     connected = false;
     msgtext.text = "";
     channelconnect();
+    getUser_id();
     super.initState();
   }
 
-  channelconnect() {
+  void getUser_id() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = pref.getString("user_id").toString();
+    });
+  }
+  channelconnect() async {
     //function to connect
+
     try{
-      channel = IOWebSocketChannel.connect("ws://192.168.43.3:6060/$myid"); //channel IP : Port
+      channel = IOWebSocketChannel.connect("ws://192.168.43.3:6060/${widget.receiver_id}"); //channel IP : Port
       channel.stream.listen((message)
       {
         setState(()
@@ -69,19 +79,18 @@ class ChatPageState extends State<ChatPage> {
           }
           else if(message == "send:error")
           {
-            print("Message error");
-            print("CHECKING ::: ${message.substring(0, 6)}");
+            setState(() {
+              message_not_send = true;
+            });
           }
           else if (message.substring(0, 6) == "{'cmd'")
           {
-            print("Message data");
             message = message.replaceAll(RegExp("'"), '"');
             var jsondata = json.decode(message);
 
             //on message receive, add data to model
-            msglist.add(MessageData(msgtext: jsondata["msgtext"], userid: jsondata["userid"], isme: false,));
             setState(() { //update UI after adding data to message model
-
+              msglist.add(MessageData(msgtext: jsondata["msgtext"], userid: jsondata["userid"].toString(), receiver_id: jsondata["receiver_id"].toString(), isme: false,));
             });
           }
         });
@@ -101,13 +110,17 @@ class ChatPageState extends State<ChatPage> {
       print("error on connecting to websocket.");
     }
   }
-  Future<void> sendmsg(String sendmsg, String id) async {
+  Future<void> sendmsg(String sendmsg) async {
+
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    user_id = pref.getString("user_id").toString();
+
     if(connected == true)
     {
-      String msg = "{'auth':'$auth','cmd':'send','userid':'$id', 'msgtext':'$sendmsg'}";
+      String msg = "{'auth':'$auth','cmd':'send','userid': '${user_id}', 'receiver_id': '${widget.receiver_id}', 'msgtext':'$sendmsg'}";
       setState(() {
         msgtext.text = "";
-        msglist.add(MessageData(msgtext: sendmsg, userid: myid, isme: true));
+        msglist.add(MessageData(msgtext: sendmsg, userid: user_id, receiver_id: widget.receiver_id, isme: true));
       });
       channel.sink.add(msg); //send message to reciever channel
     }
@@ -117,6 +130,7 @@ class ChatPageState extends State<ChatPage> {
       print("Websocket is not connected.");
     }
   }
+
   void showModal(){
     showModalBottomSheet(
         context: context,
@@ -174,10 +188,8 @@ class ChatPageState extends State<ChatPage> {
         }
     );
   }
-
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     final isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
 
     return Scaffold(
@@ -207,9 +219,9 @@ class ChatPageState extends State<ChatPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        const Text("Jane Russel",style: TextStyle(fontWeight: FontWeight.w600, color: color_white),),
+                        Text("${widget.name}", style: TextStyle(fontWeight: FontWeight.w600, color: color_white),),
                         const SizedBox(height: 6,),
-                        connected?const Text("Online",style: TextStyle(color: color_white, fontSize: 12),) : Container(),
+                        connected ? const Text("Online",style: TextStyle(color: color_white, fontSize: 12),) : Container(),
                       ],
                     ),
                   ),
@@ -239,11 +251,11 @@ class ChatPageState extends State<ChatPage> {
                       padding: EdgeInsets.all(2),
                       child: SingleChildScrollView(
                           child: Column(
-                            children: msglist.map((onemsg){
+                            children: msglist.map((onemsg) {
                               return Container(
                                   margin: EdgeInsets.only( //if is my message, then it has margin 40 at left
-                                    left: onemsg.isme?0:0,
-                                    right: onemsg.isme?0:0, //else margin at right
+                                    left: onemsg.isme ? 0:0,
+                                    right: onemsg.isme ? 0:0, //else margin at right
                                   ),
                                   child: Container(
                                     padding: EdgeInsets.only(left: 10,right: 16,top: 10,bottom: 10),
@@ -313,31 +325,6 @@ class ChatPageState extends State<ChatPage> {
                                 });
                               },
                             ),
-                              // LayoutBuilder(
-                              //     builder: (context, size)
-                              //     {
-                              //       TextSpan text = TextSpan(
-                              //         text: msgtext.text,
-                              //         style: TextStyle(color: Colors.grey.shade500),
-                              //       );
-                              //
-                              //       TextPainter tp = TextPainter(
-                              //         text: text,
-                              //         textDirection: TextDirection.ltr,
-                              //         textAlign: TextAlign.left,
-                              //       );
-                              //       tp.layout(maxWidth: size.maxWidth);
-                              //
-                              //       int lines = (tp.size.height / tp.preferredLineHeight).ceil();
-                              //       int maxLines = 10;
-                              //
-                              //       return TextField(
-                              //         controller: msgtext,
-                              //         maxLines: lines < maxLines ? null : maxLines,
-                              //         style: TextStyle(color: Colors.grey.shade500),
-                              //       );
-                              //     }
-                              // )
                           ),
                         ),
                       ),
@@ -351,7 +338,7 @@ class ChatPageState extends State<ChatPage> {
                             {
                               if(msgtext.text != "")
                               {
-                                sendmsg(msgtext.text, recieverid); //send message with webspcket
+                                sendmsg(msgtext.text); //send message with webspcket
                               }else {
                                 print("Enter message");
                               }
@@ -372,7 +359,7 @@ class ChatPageState extends State<ChatPage> {
                             {
                               if(msgtext.text != "")
                               {
-                                sendmsg(msgtext.text, recieverid); //send message with webspcket
+                                sendmsg(msgtext.text); //send message with webspcket
                               }
                               else
                                 {
@@ -394,7 +381,7 @@ class ChatPageState extends State<ChatPage> {
                             onPressed: ()
                             {
                               if(msgtext.text != ""){
-                                sendmsg(msgtext.text, recieverid); //send message with webspcket
+                                sendmsg(msgtext.text); //send message with webspcket
                               }else {
                                 print("Enter message");
                               }
@@ -411,154 +398,11 @@ class ChatPageState extends State<ChatPage> {
               ),
             ],),
         ),
-      // bottomNavigationBar: Row(
-      //   children: <Widget>[
-      //     GestureDetector(
-      //       onTap: (){
-      //         showModal();
-      //       },
-      //       child: Container(
-      //         height: 30,
-      //         width: 30,
-      //         decoration: BoxDecoration(
-      //           color: Colors.blueGrey,
-      //           borderRadius: BorderRadius.circular(30),
-      //         ),
-      //         child: Icon(Icons.attach_file,color: Colors.white,size: 21,),
-      //       ),
-      //     ),
-      //     SizedBox(width: 10,),
-      //     Expanded(
-      //       child: Container(
-      //         child: ConstrainedBox(
-      //             constraints: BoxConstraints(
-      //               maxHeight: 300.0,
-      //             ),
-      //             // child: TextField(
-      //             //   maxLines: null,
-      //             //   keyboardType: TextInputType.multiline,
-      //             //   controller: msgtext,
-      //             //   decoration: InputDecoration(
-      //             //       hintText: "Message...",
-      //             //       hintStyle: TextStyle(color: Colors.grey.shade500),
-      //             //       border: InputBorder.none
-      //             //   ),
-      //             //   onChanged: (value){
-      //             //     setState(() {
-      //             //       ontap = value.toString();
-      //             //     });
-      //             //   },
-      //             // ),
-      //             child: LayoutBuilder(
-      //                 builder: (context, size)
-      //                 {
-      //                   TextSpan text = TextSpan(
-      //                     text: msgtext.text,
-      //                     style: TextStyle(color: Colors.grey.shade500),
-      //                   );
-      //
-      //                   TextPainter tp = TextPainter(
-      //                     text: text,
-      //                     textDirection: TextDirection.ltr,
-      //                     textAlign: TextAlign.left,
-      //                   );
-      //                   tp.layout(maxWidth: size.maxWidth);
-      //
-      //                   int lines = (tp.size.height / tp.preferredLineHeight).ceil();
-      //                   int maxLines = 10;
-      //
-      //                   return TextField(
-      //                       maxLines: null,
-      //                       keyboardType: TextInputType.multiline,
-      //                       controller: msgtext,
-      //                       decoration: InputDecoration(
-      //                       hintText: "Message...",
-      //                       hintStyle: TextStyle(color: Colors.grey.shade500),
-      //                       border: InputBorder.none
-      //                     )
-      //                   );
-      //
-      //                   // return TextField(
-      //                   //   controller: msgtext,
-      //                   //   maxLines: lines < maxLines ? null : maxLines,
-      //                   //   style: TextStyle(color: Colors.grey.shade500),
-      //                   // );
-      //                 }
-      //             )
-      //         ),
-      //       ),
-      //     ),
-      //     Container(
-      //       padding: EdgeInsets.all(5),
-      //       child: SizedBox(
-      //         height: 40,
-      //         width: 40,
-      //         child: FloatingActionButton(
-      //           onPressed: ()
-      //           {
-      //             if(msgtext.text != "")
-      //             {
-      //               sendmsg(msgtext.text, recieverid); //send message with webspcket
-      //             }else {
-      //               print("Enter message");
-      //             }
-      //           },
-      //           child: Icon(Icons.emoji_emotions,color: Colors.white, size: 18,),
-      //           backgroundColor: text_color,
-      //           elevation: 0,
-      //         ),
-      //       ),
-      //     ),
-      //     ontap != '' ? Container(
-      //       padding: EdgeInsets.all(5),
-      //       child: SizedBox(
-      //         height: 40,
-      //         width: 40,
-      //         child: FloatingActionButton(
-      //           onPressed: ()
-      //           {
-      //             if(msgtext.text != "")
-      //             {
-      //               sendmsg(msgtext.text, recieverid); //send message with webspcket
-      //             }
-      //             else
-      //             {
-      //               print("Enter message");
-      //             }
-      //           },
-      //           child: Icon(Icons.send,color: Colors.white, size: 18,),
-      //           backgroundColor: text_color,
-      //           elevation: 0,
-      //         ),
-      //       ),
-      //     ) :
-      //     Container(
-      //       padding: EdgeInsets.all(5),
-      //       child: SizedBox(
-      //         height: 40,
-      //         width: 40,
-      //         child: FloatingActionButton(
-      //           onPressed: ()
-      //           {
-      //             if(msgtext.text != ""){
-      //               sendmsg(msgtext.text, recieverid); //send message with webspcket
-      //             }else {
-      //               print("Enter message");
-      //             }
-      //           },
-      //           child: Icon(Icons.keyboard_voice_rounded,color: Colors.white, size: 18,),
-      //           backgroundColor: text_color,
-      //           elevation: 0,
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
   }
 }
 class MessageData { //message data model
-  String msgtext, userid;
+  String msgtext, userid, receiver_id;
   bool isme;
-  MessageData({required this.msgtext, required this.userid, required this.isme});
+  MessageData({required this.msgtext, required this.userid, required this.receiver_id, required this.isme});
 }

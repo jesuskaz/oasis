@@ -13,7 +13,6 @@ const Color kBlue = Color(0xff154a99);
 
 const Color color_grey = Colors.grey;
 const Color color_white = Colors.white;
-const Color color_orange = Color(0xff154a99);
 const Color color_red = Colors.red;
 
 const TextStyle kBodyText = TextStyle(fontSize: 18, color: Colors.white, height: 1.5);
@@ -49,10 +48,11 @@ final kHintTextStyle = TextStyle(
   fontFamily: 'OpenSans',
 );
 
-const apiUrl = "http://192.168.43.3:8000/api/";
+// const apiUrl = "http://192.168.43.3:8000/api/";
 // const apiUrl = "http://192.168.42.63:8000/api/";
 // const apiUrl = "http://192.168.42.159:8000/api/";
-// const apiUrl = "https://oasisapp.tech/api/";
+const apiUrl = "https://oasisapp.tech/api/";
+
 const ressourceBasePath = apiUrl;
 
 userHeaders() async

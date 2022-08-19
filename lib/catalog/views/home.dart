@@ -2,6 +2,7 @@ import 'package:badges/badges.dart';
 import 'package:oasisapp/catalog/credential/signup.dart';
 import 'package:oasisapp/screens/homepage.dart';
 import 'package:oasisapp/wallet/screen/appro.dart';
+import 'package:oasisapp/wallet/screen/historique.dart';
 import 'package:oasisapp/wallet/screen/home.dart';
 import 'package:oasisapp/wallet/screen/pay.dart';
 import 'package:flutter/material.dart';
@@ -13,26 +14,30 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter_svg/flutter_svg.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../loading.dart';
 import '../../tool.dart';
 import 'cartdetail.dart';
 import 'navbar.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  String id;
+  Home(this.id);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin
-{
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+
   int numOfItems = 1;
   int quantiteValue = 1;
   int quantiteValue2 = 0;
   int quantitee = 0;
+
+  late AnimationController animationController;
+  late Animation degOneTranslationAnimation,degTwoTranslationAnimation,degThreeTranslationAnimation;
+  late Animation rotationAnimation;
 
   late String token;
   late http.Response response;
@@ -150,59 +155,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
       );
     }
   }
-  // Widget _operateur(var operateur, context) {
-  //   return Padding(
-  //     padding: EdgeInsets.all(5),
-  //     child: InkWell(
-  //       onTap: () async {
-  //       },
-  //       child: Container(
-  //         decoration: BoxDecoration(
-  //             borderRadius: BorderRadius.circular(12.0),
-  //             boxShadow: [
-  //               BoxShadow(
-  //                   color: Colors.grey.withOpacity(0.2),
-  //                   spreadRadius: 3.0,
-  //                   blurRadius: 2.0)
-  //             ],
-  //             color: Colors.white),
-  //         child: CachedNetworkImage(
-  //           imageUrl: ressourceBasePath + operateur['image'],
-  //           imageBuilder: (context, imageProvider) => Container(
-  //             margin: EdgeInsets.all(16),
-  //             height: 60.0,
-  //             width: 100.0,
-  //             decoration: BoxDecoration(
-  //               image: DecorationImage(
-  //                 image: imageProvider,
-  //                 fit: BoxFit.cover,
-  //               ),
-  //             ),
-  //           ),
-  //           placeholder: (context, url) => const Loading.rectangular(
-  //             height: double.infinity,
-  //             width: double.infinity,
-  //           ),
-  //           errorWidget: (context, url, error) => Container(
-  //             height: double.infinity,
-  //             width: double.infinity,
-  //             decoration: BoxDecoration(
-  //               borderRadius: BorderRadius.circular(5),
-  //               image: const DecorationImage(
-  //                 image: AssetImage("assets/images/imageindisponible.png"),
-  //                 fit: BoxFit.cover,
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Future getArticle() async {
 
-  Future getOperateur() async {
+    String url = apiUrl + "article/entreprise/${widget.id}";
 
-    String url = apiUrl + "article";
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("token").toString();
 
@@ -210,10 +166,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
 
     var rep;
     if (response.statusCode == 200) {
+
       var r = jsonDecode(response.body);
       if(r["status"] == true)
         {
-          rep = r["data"];
+          rep = r["data"]["data"];
         }
     }
 
@@ -221,7 +178,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
   }
 
   int _selectedItemIndex = 0;
-
   GestureDetector buildNavBarAppro(IconData iconLink, int index, String message) {
     return GestureDetector(
       onTap: () {
@@ -339,9 +295,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
         child: RaisedButton(
           padding: EdgeInsets.only(top: 5),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (conetext) => HomeScreen()),
+            Navigator.push(context, MaterialPageRoute(builder: (conetext) => HomeScreen()),
             );
           },
           elevation: 0,
@@ -386,10 +340,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
         child: RaisedButton(
           padding: EdgeInsets.only(top: 5),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (conetext) => Appro()),
-            );
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (conetext) => Historique()),);
           },
           elevation: 0,
           color: Colors.white,
@@ -411,10 +363,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
     );
   }
 
-  late AnimationController animationController;
-  late Animation degOneTranslationAnimation,degTwoTranslationAnimation,degThreeTranslationAnimation;
-  late Animation rotationAnimation;
-
   double getRadiansFromDegree(double degree) {
     double unitRadian = 57.295779513;
     return degree / unitRadian;
@@ -429,18 +377,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
     animationController = AnimationController(vsync: this,duration: Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.2), weight: 75.0),
-      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.2,end: 1.0), weight: 25.0),
-    ]).animate(animationController);
+      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.2,end: 1.0), weight: 25.0),]).animate(animationController);
     degTwoTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.4), weight: 55.0),
-      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.4,end: 1.0), weight: 45.0),
-    ]).animate(animationController);
+      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.4,end: 1.0), weight: 45.0),]).animate(animationController);
     degThreeTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.75), weight: 35.0),
-      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.75,end: 1.0), weight: 65.0),
-    ]).animate(animationController);
-    rotationAnimation = Tween<double>(begin: 180.0,end: 0.0).animate(CurvedAnimation(parent: animationController
-        , curve: Curves.easeOut));
+      TweenSequenceItem<double>(tween: Tween<double>(begin: 1.75,end: 1.0), weight: 65.0),]).animate(animationController);
+    rotationAnimation = Tween<double>(begin: 180.0,end: 0.0).animate(CurvedAnimation(parent: animationController, curve: Curves.easeOut));
     super.initState();
     animationController.addListener((){
       setState(() {
@@ -450,9 +394,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
   }
 
   @override
-  Widget build(BuildContext context)
-  {
-    getOperateur();
+  Widget build(BuildContext context) {
     void showAlertDialog(BuildContext context) {
       // ignore: deprecated_member_use
       Widget continueButton = FlatButton(
@@ -493,7 +435,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
           continueButton,
         ],
       );
-
       // Show the dialog
       showDialog(
           context: context,
@@ -536,8 +477,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
               child: Badge(
                 badgeContent: FutureBuilder(
                   future: getQuantite(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot snapshot) {
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (!snapshot.hasData) {
                       return Text('');
                     }
@@ -565,72 +505,114 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
         ],
       ),
       backgroundColor: Color(0xFFFCFAF8),
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        children: <Widget>[
-          SizedBox(height: 12.0),
-          // Expanded(
-          //   child: FutureBuilder(
-          //     future: getOperateur(),
-          //     builder: (BuildContext context, AsyncSnapshot snapshot)
-          //     {
-          //       if (snapshot.data == null) {
-          //         return const Center(
-          //           child: CircularProgressIndicator(),
-          //         );
-          //       }
-          //
-          //       if (!snapshot.hasData) {
-          //         return Container();
-          //       }
-          //
-          //       var op = snapshot.data;
-          //       print("OPERATEUR NEW ::: $op");
-          //       return Container(
-          //         padding: EdgeInsets.all(5.0),
-          //         child: GridView.count(
-          //             padding: EdgeInsets.zero,
-          //             shrinkWrap: true,
-          //             crossAxisCount: 2,
-          //             crossAxisSpacing: 3,
-          //             mainAxisSpacing: 3,
-          //             childAspectRatio: 1.5,
-          //             children: op.map((o) => _operateur(o, context),).toList()),
-          //       );
-          //     },
-          //   ),
-          // ),
+      body: Container(
+        child: FutureBuilder(
+          future: getArticle(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.data == null) {
+                return Container(
+                  height: 400,
+                  child: const Center(
+                    child: SizedBox(
+                      child: CircularProgressIndicator(
+                        color: text_color,
+                      ),
+                      height: 40,
+                      width: 40,
+                    ),
+                  ),
+                );
+              }
+              if (snapshot.data.length <= 0) {
+                return Center(
+                  child: const Text('Aucun Article existant',
+                      style: TextStyle(
+                          color: Colors.black45,
+                          fontWeight: FontWeight.bold
+                      )),
+                );
+              }
+              return Container(
+                child: GridView.builder(
+                    itemCount: snapshot.data.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.0,
+                        mainAxisSpacing: 0.0,
+                        childAspectRatio: 0.8,
+                    ),
+                    itemBuilder: (BuildContext context, index) {
 
-          SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            child: Container(
-                padding: const EdgeInsets.only(right: 5.0, left: 5.0),
-                width: MediaQuery.of(context).size.width - 30.0,
-                height: MediaQuery.of(context).size.height - 180,
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  primary: false,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 0.0,
-                  childAspectRatio: 0.8,
-                  children: <Widget>[
-                    _buildCard('Cookie mint', '\$3.99', 'images/cookiemint.jpg',
-                        false, false, context),
-                    _buildCard('Cookie cream', '\$5.99', 'images/cookiecream.jpg',
-                        true, false, context),
-                    _buildCard('Cookie classic', '\$1.99',
-                        'images/cookieclassic.jpg', false, true, context),
-                    _buildCard('Cookie choco', '\$2.99', 'images/cookiechoco.jpg',
-                        false, false, context),
+                      final liste = snapshot.data[index];
+                      print("NEW DATA ::: $liste");
 
-                    _buildCard('Cookie mint', '\$3.99','images/cookievan.jpg', false, false, context),
-                    _buildCard('Cookie mint', '\$3.99','images/vodacom.png', false, false, context),
-                  ],
-                )),
-          ),
-          // SizedBox(height: 15.0)
-        ],
+                      return Padding(
+                          padding: const EdgeInsets.only(top: 10.0, bottom: 0.0, left: 5.0, right: 5.0),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        spreadRadius: 3.0,
+                                        blurRadius: 5.0)
+                                  ],
+                                  color: Colors.white),
+                              child: Column(children: [
+                                Padding(
+                                    padding: EdgeInsets.all(5.0),
+                                    child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [ IconButton(
+                                            onPressed: (){
+                                              addPanier();
+                                            },
+                                            icon: const Icon(Icons.shopping_cart_rounded,
+                                                color: text_color0),
+                                          ), IconButton(
+                                            onPressed: () async {
+                                              const url = "https://pub.dev/packages/share_plus/install";
+
+                                              final parser = Uri.parse(url);
+                                              final response = await http.get(parser);
+                                              // await Share.share(url);
+                                              final byte = response.bodyBytes;
+
+                                              // final temp = await getTemporaryDirectory();
+                                              final path = '${liste["image"]}';
+                                              // File(path).writeAsBytesSync(byte);
+
+                                            },
+                                            icon: Icon(Icons.share, color: text_color0),
+                                          )])),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => Detail(assetPath: liste["image"], prix:liste["prix"], devise: liste["devise"], titre: liste["article"], description: liste["description"], id_article: liste["id"])));
+                                  },
+                                  child: Hero(
+                                      tag: liste["image"],
+                                      child: Container(
+                                          height: 80.0, width: 80.0,
+                                          decoration: BoxDecoration(image:
+                                          DecorationImage(image: NetworkImage(liste["image"]), fit: BoxFit.cover)))
+                                  ),
+                                ),
+                                SizedBox(height: 7.0),
+                                Text(liste["article"], style: const TextStyle(color: text_color0,
+                                    fontFamily: 'Varela',
+                                    fontSize: 14.0,
+                                  fontWeight: FontWeight.bold
+                                )),
+                                SizedBox(height: 10,),
+                                Text("${liste["prix"].toString()} ${liste["devise"]}", style: const TextStyle(color: text_color0, fontFamily: 'Varela', fontSize: 14.0)),
+                                Padding(padding: EdgeInsets.all(8.0), child: Container(color: Color(0xFFEBEBEB), height: 1.0)),
+                                Padding(padding: EdgeInsets.only(left: 5.0, right: 5.0), child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,))])));
+                    }
+                ),
+              );
+            }
+        ),
       ),
       bottomNavigationBar: Container(
         color: text_color1,
@@ -727,96 +709,96 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin
       ),
     );
   }
-  Widget _buildCard(String name, String price, String imgPath, bool added, bool isFavorite, context) {
-    return Padding(
-        padding: const EdgeInsets.only(top: 5.0, bottom: 0.0, left: 5.0, right: 5.0),
-        child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 3.0,
-                      blurRadius: 5.0)
-                ],
-                color: Colors.white),
-            child: Column(children: [
-              Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: (){
-                              addPanier();
-                            },
-                          icon: const Icon(Icons.shopping_cart_rounded,
-                              color: text_color0),
-                        ),
-                        IconButton(
-                          onPressed: () async
-                          {
-                            const url = "https://pub.dev/packages/share_plus/install";
-
-                            final parser = Uri.parse(url);
-                            final response = await http.get(parser);
-                            // await Share.share(url);
-                            final byte = response.bodyBytes;
-
-                            final temp = await getTemporaryDirectory();
-                            final path = '${temp.path}/image.jpg';
-                            // File(path).writeAsBytesSync(byte);
-
-                          },
-                          icon: Icon(Icons.share, color: text_color0),
-                        )
-                      ])),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => Detail(
-                          assetPath: imgPath,
-                          cookieprice:price,
-                          cookiename: name
-                      )));
-                },
-                child: Hero(
-                    tag: imgPath,
-                    child: Container(
-                        height: 75.0,
-                        width: 75.0,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage(imgPath),
-                                fit: BoxFit.contain)))),
-              ),
-              SizedBox(height: 7.0),
-              Text(price,
-                  style: const TextStyle(
-                      color: text_color0,
-                      fontFamily: 'Varela',
-                      fontSize: 14.0)),
-              Text(name,
-                  style: const TextStyle(
-                      color: text_color0,
-                      fontFamily: 'Varela',
-                      fontSize: 14.0)),
-              Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Container(color: Color(0xFFEBEBEB), height: 1.0)),
-              Padding(
-                  padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: const [
-                        Icon(Icons.shopping_basket,
-                            color: text_color0, size: 12.0),
-                        Text('Ajouter au panier',
-                            style: TextStyle(
-                                fontFamily: 'Varela',
-                                color: text_color0,
-                                fontSize: 12.0))
-                      ]))
-            ])));
-  }
+  // Widget _buildCard(String name, String price, String imgPath, bool added, bool isFavorite, context) {
+  //   return Padding(
+  //       padding: const EdgeInsets.only(top: 5.0, bottom: 0.0, left: 5.0, right: 5.0),
+  //       child: Container(
+  //           decoration: BoxDecoration(
+  //               borderRadius: BorderRadius.circular(15.0),
+  //               boxShadow: [
+  //                 BoxShadow(
+  //                     color: Colors.grey.withOpacity(0.2),
+  //                     spreadRadius: 3.0,
+  //                     blurRadius: 5.0)
+  //               ],
+  //               color: Colors.white),
+  //           child: Column(children: [
+  //             Padding(
+  //                 padding: EdgeInsets.all(5.0),
+  //                 child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       IconButton(
+  //                         onPressed: (){
+  //                             addPanier();
+  //                           },
+  //                         icon: const Icon(Icons.shopping_cart_rounded,
+  //                             color: text_color0),
+  //                       ),
+  //                       IconButton(
+  //                         onPressed: () async
+  //                         {
+  //                           const url = "https://pub.dev/packages/share_plus/install";
+  //
+  //                           final parser = Uri.parse(url);
+  //                           final response = await http.get(parser);
+  //                           // await Share.share(url);
+  //                           final byte = response.bodyBytes;
+  //
+  //                           final temp = await getTemporaryDirectory();
+  //                           final path = '${temp.path}/image.jpg';
+  //                           // File(path).writeAsBytesSync(byte);
+  //
+  //                         },
+  //                         icon: Icon(Icons.share, color: text_color0),
+  //                       )
+  //                     ])),
+  //             InkWell(
+  //               onTap: () {
+  //                 Navigator.of(context).push(
+  //                     MaterialPageRoute(builder: (context) => Detail(
+  //                         assetPath: imgPath,
+  //                         prix:price,
+  //                         titre: name
+  //                     )));
+  //               },
+  //               child: Hero(
+  //                   tag: imgPath,
+  //                   child: Container(
+  //                       height: 75.0,
+  //                       width: 75.0,
+  //                       decoration: BoxDecoration(
+  //                           image: DecorationImage(
+  //                               image: AssetImage(imgPath),
+  //                               fit: BoxFit.contain)))),
+  //             ),
+  //             SizedBox(height: 7.0),
+  //             Text(price,
+  //                 style: const TextStyle(
+  //                     color: text_color0,
+  //                     fontFamily: 'Varela',
+  //                     fontSize: 14.0)),
+  //             Text(name,
+  //                 style: const TextStyle(
+  //                     color: text_color0,
+  //                     fontFamily: 'Varela',
+  //                     fontSize: 14.0)),
+  //             Padding(
+  //                 padding: EdgeInsets.all(8.0),
+  //                 child: Container(color: Color(0xFFEBEBEB), height: 1.0)),
+  //             Padding(
+  //                 padding: EdgeInsets.only(left: 5.0, right: 5.0),
+  //                 child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                     children: const [
+  //                       Icon(Icons.shopping_basket,
+  //                           color: text_color0, size: 12.0),
+  //                       Text('Ajouter au panier',
+  //                           style: TextStyle(
+  //                               fontFamily: 'Varela',
+  //                               color: text_color0,
+  //                               fontSize: 12.0))
+  //                     ]))
+  //           ])));
+  // }
 }

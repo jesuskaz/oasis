@@ -1,20 +1,18 @@
 import 'dart:async';
-
-import 'package:badges/badges.dart';
 import 'package:connectivity/connectivity.dart';
+
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
+
 import 'package:oasisapp/tool.dart';
 import 'dart:io';
-import 'package:oasisapp/wallet/screen/home.dart';
-import 'package:oasisapp/wallet/screen/pay.dart';
 import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:path/path.dart' as path;
@@ -55,6 +53,8 @@ class _Article extends State<Article> with TickerProviderStateMixin {
   late ListItemCategorie _selectedItemCat = ListItemCategorie('', '');
   Connectivity connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> subscription;
+
+  var tab = [];
 
 
   List<DropdownMenuItem<ListItem>> buildDropDownMenuItems(List listItems) {
@@ -145,12 +145,13 @@ class _Article extends State<Article> with TickerProviderStateMixin {
       "Authorization": "Bearer $token", "Accept": "application/json; charset=UTF-8"
     });
 
-    var tab = [];
     if (responseCat.statusCode == 200) {
       try {
         tab = [jsonDecode(responseCat.body)];
       } catch (e) {}
     }
+
+    print("TABLEAU ::: $tab");
 
     List<ListItemCategorie> _tabCat = [];
     tab[0]["data"].forEach((element) {
@@ -278,8 +279,8 @@ class _Article extends State<Article> with TickerProviderStateMixin {
                   items: _dropdownMenuItemsCat,
                   onChanged: (value) {
                     setState(() {
-                      // _selectedItem = value;
                       _selectedCat = _selectedItemCat.id;
+                      print("SECOND ENTERPRISE ::: ${_selectedItemCat.id}");
                     });
                   },
                   validator: (value) {
@@ -431,7 +432,6 @@ class _Article extends State<Article> with TickerProviderStateMixin {
         ),
       ),
     );
-
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -471,6 +471,7 @@ class _Article extends State<Article> with TickerProviderStateMixin {
         {
           progressDialog.dismiss();
 
+          print("STATUS :::: ${res.statusCode}");
           if(res.statusCode == 200)
           {
             if(res.data["status"] == true)
@@ -550,7 +551,6 @@ class _Article extends State<Article> with TickerProviderStateMixin {
         textColor: Colors.black,
       );
     }
-
   }
   Widget _article(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Padding(
@@ -683,7 +683,6 @@ class _Article extends State<Article> with TickerProviderStateMixin {
       _selectedItem = _dropdownMenuItems[0].value!;
       _selectedDevise = _selectedItem.id;
     }
-
     _dropdownMenuItemsCat = buildDropDownMenuItemsCat(_dropdownItemsCat);
     if (_dropdownMenuItemsCat.isNotEmpty) {
       _selectedItemCat = _dropdownMenuItemsCat[0].value!;
@@ -736,9 +735,10 @@ class _Article extends State<Article> with TickerProviderStateMixin {
                   ),
                   SizedBox(height: 10,),
                   const Text(
-                    "Ajoutez l'image de la catégorie",
+                    "Ajoutez l'image de l'article",
                     style: TextStyle(
                         fontSize: 18,
+
                         fontWeight: FontWeight.bold,
                         color: Colors.blueGrey
                     ),
@@ -761,7 +761,7 @@ class _Article extends State<Article> with TickerProviderStateMixin {
             padding: EdgeInsets.all(10.0),
             child: _categorie(
                 Icons.currency_franc_rounded,
-                'Devise'
+                'Categorie'
             ),
           ),
           Padding(
@@ -770,7 +770,8 @@ class _Article extends State<Article> with TickerProviderStateMixin {
                 Icons.currency_franc_rounded,
                 'Devise'
             ),
-          ), Padding(
+          ),
+          Padding(
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
             child: _article(
               Icons.article,

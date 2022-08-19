@@ -373,7 +373,7 @@ class _CartDetail extends State<CartDetail>
           return MaterialButton(
             padding: EdgeInsets.all(20),
             onPressed: t[0] == true ? payMode : null,
-            color: Colors.orange,
+            color: text_color,
             textColor: Colors.white,
             child: Text(
               'Acheter ${t[1]}',

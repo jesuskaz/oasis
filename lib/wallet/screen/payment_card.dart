@@ -26,10 +26,9 @@ class Payment_cart extends StatefulWidget
 
 class _Payment_cartState extends State<Payment_cart>
 {
-
   List listData = [];
   late ProgressDialog progressDialog;
-  late int id_f;
+  late int id_f = 0;
   late SharedPreferences preferences;
 
   Future getOperateur() async {
@@ -44,9 +43,10 @@ class _Payment_cartState extends State<Payment_cart>
       }
     return rep ?? [];
   }
-  Future getDevise() async {
-    String url = apiUrl + "devise";
 
+  Future getDevise() async {
+
+    String url = apiUrl + "devise";
     final response = await http.get(Uri.parse(url), headers: {'Accept': 'application/json'});
 
     if (response.statusCode == 200)
@@ -69,8 +69,8 @@ class _Payment_cartState extends State<Payment_cart>
   }
   @override
   initState() {
+    getDevise();
     super.initState();
-
   }
   showProgress() {
     progressDialog = ProgressDialog(
@@ -92,6 +92,8 @@ class _Payment_cartState extends State<Payment_cart>
       "montant": widget.montant,
       "source": "appro"
     };
+
+    print("DATA ::: $data ===");
 
 
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -130,7 +132,7 @@ class _Payment_cartState extends State<Payment_cart>
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
               },
-              color: Colors.orange,
+              color: text_color,
               textColor: Colors.white,
               child: const Text(
                 'Ok',
@@ -178,7 +180,7 @@ class _Payment_cartState extends State<Payment_cart>
               onPressed: () {
                 Navigator.pop(context);
               },
-              color: Colors.orange,
+              color: text_color,
               textColor: Colors.white,
               child: const Text(
                 'NON',
@@ -194,7 +196,7 @@ class _Payment_cartState extends State<Payment_cart>
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              color: Colors.orange,
+              color: text_color,
               textColor: Colors.white,
               child: const Text(
                 'OUI',
@@ -211,7 +213,7 @@ class _Payment_cartState extends State<Payment_cart>
               return alert;
             });
       },
-      color: Colors.orange,
+      color: text_color,
       textColor: Colors.white,
       child: const Text(
         'RETOUR',
@@ -227,7 +229,7 @@ class _Payment_cartState extends State<Payment_cart>
         Navigator.pop(context);
         await appro(3);
       },
-      color: Colors.orange,
+      color: text_color,
       textColor: Colors.white,
       child: const Text(
         'CONFIRMER L\'APPRO',
@@ -275,7 +277,6 @@ class _Payment_cartState extends State<Payment_cart>
   @override
   Widget build(BuildContext context)
   {
-    getDevise();
     int _selectedItemIndex = 0;
 
     GestureDetector buildNavBarAppro(IconData iconLink, int index, String message) {

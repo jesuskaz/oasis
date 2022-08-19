@@ -1,11 +1,16 @@
 import 'package:oasisapp/catalog/component/navbar.dart';
 import 'package:oasisapp/catalog/views/home.dart' as homeView;
+import 'package:oasisapp/catalog/views/list_entreprise.dart';
+
 import 'package:oasisapp/screens/accueil.dart';
 import 'package:oasisapp/screens/appel.dart';
 import 'package:oasisapp/screens/look.dart';
+
 import 'package:oasisapp/wallet/screen/home.dart';
 import 'package:flutter/material.dart';
+import 'package:contacts_service/contacts_service.dart';
 
+import 'package:permission_handler/permission_handler.dart';
 import '../tool.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,30 +20,53 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
-
 {
+
   bool chat = true;
   bool look = false;
   bool appel = false;
-
-  PageController _pageController = PageController();
-  List<Widget> _screens = [Accueil(), Look(), Appel(),];
-
-  _onItemTapped(int selectedIndex)
-  {
-    setState(() {
-      _pageController.jumpToPage(selectedIndex);
-    });
-  }
 
   late AnimationController animationController;
   late Animation degOneTranslationAnimation,degTwoTranslationAnimation,degThreeTranslationAnimation;
   late Animation rotationAnimation;
 
+  PageController _pageController = PageController();
+  List<Widget> _screens = [Accueil(), Look(), Appel(),];
+  List<String> names = [];
+
+  List<String> phones = [];
+
+  _onItemTapped(int selectedIndex) {
+    setState(() {
+      _pageController.jumpToPage(selectedIndex);
+    });
+  }
   double getRadiansFromDegree(double degree) {
     double unitRadian = 57.295779513;
     return degree / unitRadian;
   }
+  Future getContact() async {
+    PermissionStatus permission = await Permission.contacts.status;
+    if (permission == PermissionStatus.granted && permission.isGranted)
+    {
+      Iterable<Contact> _contacts = await ContactsService.getContacts(withThumbnails: false);
+      _contacts.forEach((contact)
+      {
+        setState((){
+          contact.phones?.toSet().forEach((phone)
+          {
+            names.add(contact.givenName.toString());
+            phones.add(phone.value.toString());
+          });
+        });
+      });
+    }
+    else
+    {
+      print("Error ::: ${permission.isGranted}");
+    }
+  }
+
   @override
   void dispose() {
     animationController.dispose();
@@ -46,6 +74,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
   @override
   void initState() {
+    getContact();
     animationController = AnimationController(vsync: this,duration: Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.2), weight: 75.0),
@@ -144,7 +173,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degThreeTranslationAnimation.value),
                       alignment: Alignment.center,
                       child: CircularButton(
-                        color: Colors.orangeAccent,
+                        color: Colors.orange,
                         width: 50,
                         height: 50,
                         icon: const Icon(
@@ -152,7 +181,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           color: Colors.white,
                         ),
                         onClick: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const homeView.Home()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => List_Entreprise()));
                         },
                       ),
                     ),
@@ -305,7 +334,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 }
 
 class CircularButton extends StatelessWidget {
-
   final double width;
   final double height;
   final Color color;

@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:connectivity/connectivity.dart';
-import 'package:oasisapp/catalog/views/home.dart';
+// import 'package:oasisapp/catalog/views/home.dart';
+import 'package:oasisapp/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oasisapp/tool.dart';
@@ -60,19 +61,16 @@ class _NextSignupState extends State<NextSignup>
       });
     }
   }
-
   @override
   void dispose() {
     super.dispose();
     subscription.cancel();
   }
-
   @override
   initState() {
     checkNetwork();
     super.initState();
   }
-
   showProgress() {
     progressDialog = ProgressDialog(
       context: context,
@@ -82,8 +80,7 @@ class _NextSignupState extends State<NextSignup>
     );
     progressDialog.show();
   }
-  Future register() async
-  {
+  Future register() async {
     setState(() {
       noInternet = '';
     });
@@ -131,7 +128,7 @@ class _NextSignupState extends State<NextSignup>
                 textColor: Colors.grey);
 
             Navigator.pop(context);
-            Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
           }
         }).catchError((onError){
           progressDialog.dismiss();
@@ -144,12 +141,7 @@ class _NextSignupState extends State<NextSignup>
         });
       }
   }
-  Widget _motdePasse(
-      IconData icon,
-      String hint,
-      TextInputType inputType,
-      TextInputAction inputAction,
-      ) {
+  Widget _motdePasse(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
       child: Center(
@@ -166,7 +158,7 @@ class _NextSignupState extends State<NextSignup>
             }
           },
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
+            enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(
                   color: color_white,
                 )),
@@ -177,7 +169,7 @@ class _NextSignupState extends State<NextSignup>
             ),
             suffixIcon: InkWell(
               onTap: () => getHiddenPass(),
-              child: Icon(
+              child: const Icon(
                 Icons.visibility,
                 color: color_white,
               ),
@@ -195,12 +187,7 @@ class _NextSignupState extends State<NextSignup>
       // ),
     );
   }
-  Widget _nom(
-      IconData icon,
-      String hint,
-      TextInputType inputType,
-      TextInputAction inputAction,
-      ) {
+  Widget _nom(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
       child: Center(
@@ -238,12 +225,7 @@ class _NextSignupState extends State<NextSignup>
       // ),
     );
   }
-  Widget _confirm(
-      IconData icon,
-      String hint,
-      TextInputType inputType,
-      TextInputAction inputAction,
-      ) {
+  Widget _confirm(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
       child: Center(
@@ -339,30 +321,11 @@ class _NextSignupState extends State<NextSignup>
                               )
                           ),
                         ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        _nom(
-                          Icons.account_circle,
-                          'Nom complet',
-                          TextInputType.name,
-                          TextInputAction.next,
-                        ),
-                        _motdePasse(
-                          Icons.lock_outline_sharp,
-                          'Mot de passe',
-                          TextInputType.name,
-                          TextInputAction.next,
-                        ),
-                        _confirm(
-                          Icons.lock_outline_sharp,
-                          'Confirmez Mot de passe',
-                          TextInputType.name,
-                          TextInputAction.done,
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
+                        const SizedBox(height: 30,),
+                        _nom(Icons.account_circle, 'Nom complet', TextInputType.name, TextInputAction.next,),
+                        _motdePasse(Icons.lock_outline_sharp, 'Mot de passe', TextInputType.name, TextInputAction.next,),
+                        _confirm(Icons.lock_outline_sharp, 'Confirmez Mot de passe', TextInputType.name, TextInputAction.done,),
+                        const SizedBox(height: 5,),
                         Container(
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,20 +1,22 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:badges/badges.dart';
 import 'package:connectivity/connectivity.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
+
 import 'package:oasisapp/tool.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:open_file/open_file.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:dio/dio.dart';
 import 'package:path/path.dart' as path;
+import 'dart:convert';
 
 class Categorie extends StatefulWidget {
   @override
@@ -34,8 +36,76 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
   var noInternet = '';
   Dio dio = new Dio();
 
-  late ProgressDialog progressDialog;
 
+  var _selected = "1";
+  bool process = false;
+  late ProgressDialog progressDialog;
+  String url = "";
+
+  String token = '';
+  bool processCat = false;
+  late http.Response responseCat;
+  var tab = [];
+
+  Widget _entreprise(IconData icon, String hint) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: DropdownButtonHideUnderline(
+              child: ButtonTheme(
+                alignedDropdown: true,
+                child: DropdownButtonFormField(
+                  icon: Icon(Icons.arrow_drop_down,
+                    color: _selected == null ? Colors.grey : Colors.black,
+                  ),
+                  decoration: const InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: text_color2,
+                      ),
+                    ),
+                    hintStyle: TextStyle(color: text_color2),
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.all(2.0),
+                  ),
+                  isDense: true,
+                  isExpanded: true,
+                  hint: Text(
+                    "Selectionnez une Entreprise",
+                    style: TextStyle(
+                      color: Colors.black26,
+                    ),
+                  ),
+                  value: _selected.toString(),
+                  items: tab.map((data) {
+                    return DropdownMenuItem<String>(
+                      child: Text(data["entreprise"]),
+                      value: data["id"].toString(),
+                    );
+                  }).toList(),
+                  onChanged: (value)
+                  {
+                    setState(() {
+                      _selected = value.toString();
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Currency required';
+                    } else {
+                      return null;
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   showProgress() {
     progressDialog = ProgressDialog(
       context: context,
@@ -45,6 +115,7 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
     );
     progressDialog.show();
   }
+
   void checkNetwork() async {
     subscription = connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
       if (mounted) {
@@ -84,17 +155,36 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    subscription.cancel();
-  }
-  @override
-  initState() {
-    checkNetwork();
-    super.initState();
-  }
+  Future getEntreprise() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    token = pref.getString("token").toString();
 
+    setState(() {
+      processCat = true;
+    });
+
+    url = apiUrl + "entreprise";
+
+    responseCat = await http.get(Uri.parse(url), headers: <String, String>{
+      "Authorization": "Bearer $token", "Accept": "application/json; charset=UTF-8"
+    });
+
+    if (responseCat.statusCode == 200)
+    {
+     var data = jsonDecode(responseCat.body);
+
+      if(data["status"] == true)
+        {
+          if(mounted)
+            {
+              setState(() {
+                tab = data["data"];
+                _selected = tab[0]["id"].toString();
+              });
+            }
+        }
+    }
+  }
   Future createCategorie() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("token").toString();
@@ -108,40 +198,30 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
       showProgress();
       String url = apiUrl + "categorie-article";
       if(file_image != null)
+      {
+        FormData data = FormData.fromMap({
+          "categorie": categorie.text,
+          "entreprise_id": _selected.toString(),
+          "image": await MultipartFile.fromFile(
+            file_image.path, filename: path.basename(file_image.path),
+            // contentType:  MediaType("image", "$type")
+          ),
+        });
+        dio.options.headers["Authorization"] = "Bearer ${token}";
+        await dio.post(url, data: data).timeout(Duration(seconds: 30)).then((res)
         {
-          FormData data = FormData.fromMap({
-            "categorie": categorie.text,
-            "image": await MultipartFile.fromFile(
-              file_image.path, filename: path.basename(file_image.path),
-              // contentType:  MediaType("image", "$type")
-            ),
+          progressDialog.dismiss();
 
-          });
-          dio.options.headers["Authorization"] = "Bearer ${token}";
-          await dio.post(url, data: data).timeout(Duration(seconds: 30)).then((res)
+          if(res.statusCode == 200)
           {
-            progressDialog.dismiss();
-
-            if(res.statusCode == 200)
+            if(res.data["status"] == true)
             {
-              if(res.data["status"] == true)
-              {
-                Fluttertoast.showToast(
-                  msg: "La catégorie a été ajoutée avec succès.",
-                  toastLength: Toast.LENGTH_SHORT,
-                  backgroundColor: Colors.white,
-                  textColor: Colors.black,
-                );
-              }
-              else
-              {
-                Fluttertoast.showToast(
-                  msg: "Veuillez réesayer de charger la catégorie.",
-                  toastLength: Toast.LENGTH_SHORT,
-                  backgroundColor: Colors.white,
-                  textColor: Colors.black,
-                );
-              }
+              Fluttertoast.showToast(
+                msg: "La catégorie a été ajoutée avec succès.",
+                toastLength: Toast.LENGTH_SHORT,
+                backgroundColor: Colors.white,
+                textColor: Colors.black,
+              );
             }
             else
             {
@@ -152,57 +232,195 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
                 textColor: Colors.black,
               );
             }
-          }).catchError((onError) async {
-
-            progressDialog.dismiss();
-            if(onError.response.statusCode == 400)
-            {
-              var body = await onError.response.data;
-              List msg = body["data"]["errors_msg"];
-              var msg2 = msg.join(',');
-
-              Fluttertoast.showToast(
-                msg: "$msg2",
-                toastLength: Toast.LENGTH_SHORT,
-                backgroundColor: Colors.white,
-                textColor: Colors.black,
-              );
-              return ;
-            }
-            print(onError.response!.data);
-            print(onError.response!.headers);
-            print(onError.response!.requestOptions);
-
+          }
+          else
+          {
             Fluttertoast.showToast(
-              msg: "Erreur de connexion réseau.",
+              msg: "Veuillez réesayer de charger la catégorie.",
               toastLength: Toast.LENGTH_SHORT,
               backgroundColor: Colors.white,
               textColor: Colors.black,
             );
-          });
-        }
-      else
-        {
+          }
+        }).catchError((onError) async {
+
           progressDialog.dismiss();
+          if(onError.response.statusCode == 400)
+          {
+            var body = await onError.response.data;
+            List msg = body["data"]["errors_msg"];
+            var msg2 = msg.join(',');
+
+            Fluttertoast.showToast(
+              msg: "$msg2",
+              toastLength: Toast.LENGTH_SHORT,
+              backgroundColor: Colors.white,
+              textColor: Colors.black,
+            );
+            return ;
+          }
+          print(onError.response!.data);
+          print(onError.response!.headers);
+          print(onError.response!.requestOptions);
+
           Fluttertoast.showToast(
-            msg: "Veuillez choisir l'image de la catégorie",
+            msg: "Erreur de connexion réseau.",
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.white,
             textColor: Colors.black,
           );
-        }
-    }
-    else
+        });
+      }
+      else
       {
         progressDialog.dismiss();
         Fluttertoast.showToast(
-          msg: "Vérifiez votre connexion internet.",
-          toastLength: Toast.LENGTH_LONG,
+          msg: "Veuillez choisir l'image de la catégorie",
+          toastLength: Toast.LENGTH_SHORT,
           backgroundColor: Colors.white,
           textColor: Colors.black,
         );
       }
+    }
+    else
+    {
+      progressDialog.dismiss();
+      Fluttertoast.showToast(
+        msg: "Vérifiez votre connexion internet.",
+        toastLength: Toast.LENGTH_LONG,
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+      );
+    }
   }
+  showAlertDialog(BuildContext context) {
+    // ignore: deprecated_member_use
+    Widget cancelButton = RaisedButton(
+      padding: EdgeInsets.all(10),
+      onPressed: () {
+        AlertDialog alert = AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const [
+                Text(
+                  "Voulez-vous retourner ? ",
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            // ignore: deprecated_member_use
+            RaisedButton(
+              padding: EdgeInsets.all(10),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              color: text_color0,
+              textColor: Colors.white,
+              child: const Text(
+                'NON',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            // ignore: deprecated_member_use
+            RaisedButton(
+              padding: EdgeInsets.all(10),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              color: text_color0,
+              textColor: Colors.white,
+              child: const Text(
+                'OUI',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          ],
+        );
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            });
+      },
+      color: text_color0,
+      textColor: Colors.white,
+      child: const Text(
+        'RETOUR',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    // ignore: deprecated_member_use
+    Widget continueButton = RaisedButton(
+      padding: EdgeInsets.all(10),
+      onPressed: () async {
+        Navigator.pop(context);
+        // await save();
+      },
+      color: text_color0,
+      textColor: Colors.white,
+      child: const Text(
+        'Confirmez',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: [
+            const Text(
+              "Message ",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            SizedBox(height: 10,),
+            Text(
+              "Voulez-vous ajouter l'entreprise a votre compte ?",
+              style: TextStyle(
+                  color: text_color3
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 15, bottom: 4),
+              child: continueButton,
+            ),
+            cancelButton
+          ],
+        ),
+      ),
+    );
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
+  @override
+  initState() {
+    getEntreprise();
+    checkNetwork();
+    super.initState();
+  }
+
   Widget _categorie(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Form(
       key: _formKey,
@@ -246,8 +464,8 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
+
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -325,6 +543,13 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
               TextInputType.name,
                 TextInputAction.done,
             ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(5.0),
+            child: _entreprise(
+                Icons.currency_franc_rounded,
+                'Devise'
+            ),
           )
         ],
       ),
@@ -353,4 +578,10 @@ class _Categorie extends State<Categorie> with TickerProviderStateMixin {
       ),
     );
   }
+}
+
+class ListItemCategorie {
+  String id;
+  String entreprise;
+  ListItemCategorie(this.id, this.entreprise);
 }

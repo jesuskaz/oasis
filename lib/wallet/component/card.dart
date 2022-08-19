@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../tool.dart';
+
 Widget card({double width = double.infinity, double padding = 20, required Widget child}) {
   return Container(
     width: width,

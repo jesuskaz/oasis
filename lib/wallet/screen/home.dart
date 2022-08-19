@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:oasisapp/catalog/views/list_entreprise.dart';
 import 'package:oasisapp/screens/homepage.dart';
 import 'package:oasisapp/solde.dart';
 
@@ -59,7 +60,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
   @override
   void initState() {
-    getTransaction();
     animationController = AnimationController(vsync: this,duration: Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.2), weight: 75.0),
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               Navigator.of(context).pop();
               Navigator.of(context);
             },
-            color: Colors.orange,
+            color: text_color,
             textColor: Colors.white,
             child: const Text(
               'Continuer',
@@ -229,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 FlatButton(
                   child: Text("Confirmer"),
                   textColor: Colors.white,
-                  color: Colors.orange,
+                  color: text_color,
                   onPressed: () {
 
                     if (_formKey.currentState!.validate())
@@ -279,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               Navigator.of(context).pop();
                               payment(compte);
                             },
-                            color: Colors.orange,
+                            color: text_color,
                             textColor: Colors.white,
                             child: const Text(
                               'Continuer',
@@ -308,13 +308,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Future getDevise() async {
 
     String url = apiUrl + "devise";
-
     setState(() {
       process = true;
     });
 
     final response = await http.get(Uri.parse(url));
-
     if (response.statusCode == 200)
     {
       var r = json.decode(response.body);
@@ -419,14 +417,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     if (response.statusCode == 200)
     {
       var r = json.decode(response.body);
-      print("DATA IS ::: $r");
-
-      setState(() {
-        listData = r["data"];
-      });
+      listData = r["data"];
     }
+    else
+      {
+        listData = [];
+      }
     return listData;
   }
+
   @override
   Future<void> scanQRCode() async {
     try {
@@ -452,6 +451,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    setState((){});
     Size size = MediaQuery.of(context).size;
     int _selectedItemIndex = 0;
 
@@ -776,16 +776,25 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
           const SizedBox(height: 15,),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: ListView.builder(
-              itemCount: listData.length,
-              itemBuilder: (BuildContext context, int index)
+          FutureBuilder(
+              future: getTransaction(),
+              builder: (BuildContext context, AsyncSnapshot snapshot)
               {
-                if(listData.length == 0)
-                {
-                  // ignore: prefer_const_constructors
+                if (snapshot.data == null) {
+                  return Container(
+                    height: 200,
+                    child: const Center(
+                      child: SizedBox(
+                        child: CircularProgressIndicator(
+                          color: text_color,
+                        ),
+                        height: 40,
+                        width: 40,
+                      ),
+                    ),
+                  );
+                }
+                if (!snapshot.hasData) {
                   return Center(
                     child: const Text('Aucune Opération',
                         style: TextStyle(
@@ -794,56 +803,62 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         )),
                   );
                 }
-                else
-                {
-                  var ops = listData[index]["operateur"];
-                  String operateur = '';
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: ListView.builder(
+                      itemCount: listData.length,
+                      itemBuilder: (BuildContext context, int index)
+                      {
+                          var ops = listData[index]["operateur"];
+                          String operateur = '';
 
-                  if(ops != null)
-                  {
-                    var op = ops["operateur"].toString().toLowerCase();
-                    switch (op)
-                    {
-                      case "visa":
-                        operateur = "images/mastercard.png";
-                        break;
-                      case "mastercard":
-                        operateur = "images/mastercard.png";
-                        break;
-                      case "illico cash":
-                        operateur = "images/mastercard.png";
-                        break;
-                      case "m-pesa":
-                        operateur = "images/vodacom.png";
-                        break;
-                      case "airtel money":
-                        operateur = "images/airtel.png";
-                        break;
-                      case "orange money":
-                        operateur = "images/orange.png";
-                        break;
-                      default:
-                        operateur = "oasis pay";
-                    }
-                  }
-                  return SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      children: [
-                        _listCryptoItem(
-                          iconUrl: operateur,
-                          myCrypto: "${listData[index]["montant"]}",
-                          myBalance: "${listData[index]["type"]}",
-                          myProfit: "${listData[index]["trans_id"]}",
-                          precent: "Appro",
-                        ),
-                      ],
+                          if(ops != null)
+                          {
+                            var op = ops["operateur"].toString().toLowerCase();
+                            switch (op)
+                            {
+                              case "visa":
+                                operateur = "images/mastercard.png";
+                                break;
+                              case "mastercard":
+                                operateur = "images/mastercard.png";
+                                break;
+                              case "illico cash":
+                                operateur = "images/mastercard.png";
+                                break;
+                              case "m-pesa":
+                                operateur = "images/vodacom.png";
+                                break;
+                              case "airtel money":
+                                operateur = "images/airtel.png";
+                                break;
+                              case "orange money":
+                                operateur = "images/orange.png";
+                                break;
+                              default:
+                                operateur = "oasis pay";
+                            }
+                          }
+                          return SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              children: [
+                                _listCryptoItem(
+                                  iconUrl: operateur,
+                                  myCrypto: "${listData[index]["montant"]}",
+                                  myBalance: "${listData[index]["type"]}",
+                                  myProfit: "${listData[index]["trans_id"]}",
+                                  precent: "Appro",
+                                ),
+                              ],
+                            ),
+                          );
+                      },
                     ),
-                  );
-                }
-              },
-              ),
-            ),
+                  ),
+                );
+              }
           )
         ],
       ),
@@ -887,7 +902,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       transform: Matrix4.rotationZ(getRadiansFromDegree(rotationAnimation.value))..scale(degThreeTranslationAnimation.value),
                       alignment: Alignment.center,
                       child: CircularButton(
-                        color: Colors.orangeAccent,
+                        color: text_color,
                         width: 50,
                         height: 50,
                         icon: const Icon(
@@ -895,7 +910,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           color: Colors.white,
                         ),
                         onClick: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const homecatalog.Home()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => List_Entreprise()));
                         },
                       ),
                     ),
@@ -945,33 +960,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget _listCryptoItem({required String iconUrl, required String precent, required String myCrypto, myBalance, myProfit}) {
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 9.0),
       child: card(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Image.asset(iconUrl != '' ? iconUrl : 'images/logo.png',
-              width: 50,
-            ),
-            const SizedBox(
-              width: 20,
-            ),
+            Image.asset(iconUrl != '' ? iconUrl : 'images/logo.png', width: 50,),
+            const SizedBox(width: 15,),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    myCrypto,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  Text(
-                    '$myProfit',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black45,
-                    ),
-                  ),
+                  Text(myCrypto, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+                  Text('$myProfit', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black45,),),
                 ],
               ),
             ),

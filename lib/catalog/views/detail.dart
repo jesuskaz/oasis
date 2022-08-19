@@ -15,9 +15,9 @@ import 'cartdetail.dart';
 
 class Detail extends StatefulWidget
 {
-  final assetPath, cookieprice, cookiename;
+  final assetPath, prix, devise, titre, description, id_article;
 
-  Detail({this.assetPath, this.cookieprice, this.cookiename});
+  Detail({this.assetPath, this.prix, this.devise, this.titre, this.description, this.id_article});
 
   @override
   _Detail createState() => _Detail();
@@ -32,15 +32,18 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
   int quantitee = 0;
   int qte_init = 0;
 
+  bool isTrue = false;
+
+  String token = "";
   Future getQuantite() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("token").toString();
 
     var quantite;
     String url = apiUrl + "panier";
-    response = await http.get(Uri.parse(url), headers: <String, String>{
-      "Authorization": "Bearer $token", "Accept": "application/json; charset=UTF-8"
-    });
+      response = await http.get(Uri.parse(url), headers: <String, String>{
+        "Authorization": "Bearer $token", "Accept": "application/json; charset=UTF-8"
+      });
 
     if (response.statusCode == 200)
     {
@@ -59,21 +62,37 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
 
     return quantitee;
   }
+  Future getToken() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      token = pref.getString("token").toString();
+    });
+  }
+
+  @override
+  initState() {
+    getToken();
+  }
   Future addPanier() async {
 
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String token = pref.getString("token").toString();
+    setState((){
+      isTrue = true;
+    });
 
     String url = apiUrl + "panier";
+
     var res = await http.post(
         Uri.parse(url),
         headers: <String, String>{
           'Authorization': "Bearer $token", 'Accept': 'application/json; charset=UTF-8',
         },
         body: {
-          "id": "452",
+          "id": widget.id_article.toString(),
           "qte": numOfItems.toString(),
         });
+    setState((){
+      isTrue = false;
+    });
 
     if (res.statusCode == 200)
     {
@@ -103,12 +122,14 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                   color: text_color0,
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CartDetail(""),
-                      ),
-                    );
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Pay()));
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => CartDetail(token),
+                    //   ),
+                    // );
                   },
                 ),
               ],
@@ -136,6 +157,30 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
           );
         }
     }
+    else if(res.statusCode == 403)
+    {
+      var data = jsonDecode(res.body);
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          content: Text("${data['data']["errors_msg"][0]}"),
+          actions: [
+            // ignore: deprecated_member_use
+            FlatButton(
+              child: Text("Ok"),
+              textColor: Colors.white,
+              color: text_color0,
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {});
+              },
+            ),
+            // ignore: deprecated_member_use
+          ],
+        ),
+      );
+    }
     else
       {
         Fluttertoast.showToast(
@@ -145,6 +190,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
           textColor: Colors.black,
         );
       }
+
   }
 
   @override
@@ -208,10 +254,9 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(left: 20.0),
-                  child: Text(
-                      'Cookie',
+                  child: Text(widget.titre,
                       style: TextStyle(
                           fontFamily: 'Varela',
                           fontSize: 42.0,
@@ -247,52 +292,41 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                   Container(
                     child: Hero(
                         tag: widget.assetPath,
-                        child: Image.asset(widget.assetPath,
+                        child: Image.network(widget.assetPath,
                             height: 150.0,
                             width: 100.0,
                             fit: BoxFit.contain
                         )
                     ),
                   ),
-                  const Image(
-                    image: AssetImage("images/shoes.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                  const Image(
-                    image: AssetImage("images/iphone2.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                  const Image(
-                    image: AssetImage("images/bookin.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                  const Image(
-                    image: AssetImage("images/shoes_l.jpg"),
-                    fit: BoxFit.cover,
-                  ),
                 ]
             ),
             SizedBox(height: 20.0),
             Column(
               children: [
-                Container(
-                  child: Text(widget.cookieprice,
-                      style: const TextStyle(
-                          fontFamily: 'Varela',
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFF17532))),
-                ),
-                const SizedBox(height: 10.0),
-                Container(
-                  padding: EdgeInsets.all(5),
-                  child: Container(
-                    child: Text(widget.cookiename,
-                        style: const TextStyle(
-                            color: Color(0xFF575E67),
-                            fontFamily: 'Varela',
-                            fontSize: 24.0)),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(5),
+                      child: Container(
+                        child: Text(widget.titre,
+                            style: const TextStyle(
+                                color: Color(0xFF575E67),
+                                fontFamily: 'Varela',
+                                fontSize: 24.0)),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Container(
+                      child: Text("${widget.prix} ${widget.devise}",
+                          style: const TextStyle(
+                              fontFamily: 'Varela',
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.bold,
+                              color: text_color0)),
+                    ),
+                  ],
                 ),
                 Container(
                   child: Row(
@@ -367,12 +401,23 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                         height: 50.0,
                         child: RaisedButton(
                             color:  text_color0,
-                            child: const Text(
+                            child: isTrue == false ? Text(
                               "Ajouter au Panier",
                               style: TextStyle(
                                 fontSize: 18.0,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
+                              ),
+                            ) : Container(
+                              height: 400,
+                              child: const Center(
+                                child: SizedBox(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                  height: 20,
+                                  width: 20,
+                                ),
                               ),
                             ),
                             onPressed: (){
@@ -386,9 +431,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                 const SizedBox(height: 20.0),
                 Container(
                   width: MediaQuery.of(context).size.width - 50.0,
-                  child: const Text(
-                      'Cold, creamy ice cream sandwiched between delicious deluxe cookies. '
-                          'Pick your favorite deluxe cookies and ice cream flavor.',
+                  child:  Text(widget.description,
                       textAlign: TextAlign.justify,
                       style: TextStyle(
                           fontFamily: 'Varela',
@@ -469,6 +512,9 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                               children: [
                                 Text(
                                   "Attention",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold
+                                  ),
                                 ),
                                 SizedBox(height: 3,),
                                 Text(

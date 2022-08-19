@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart';
 import 'package:oasisapp/catalog/views/article.dart';
 import 'package:oasisapp/catalog/views/categorie.dart';
+import 'package:oasisapp/catalog/views/entreprise.dart';
 import 'package:oasisapp/tool.dart';
 import 'package:oasisapp/wallet/screen/home.dart';
 import 'package:oasisapp/wallet/screen/pay.dart';
@@ -54,6 +55,46 @@ class _Option_boutique extends State<Option_boutique>
           SizedBox(height: size.height * 0.05,),
           InkWell(
             onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Entreprise()));
+            },
+            child: Card(
+              child: ListTile(
+                leading: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.blue.shade50,
+                  ),
+                  height: 50,
+                  width: 50,
+                  child: Icon(
+                    Icons.add_business_rounded,
+                    size: 30,
+                    color: Colors.blue.shade400,
+                  ),
+                ),
+                title: const Padding(
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  child: Text(
+                    "Créez votre Entreprise",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.blueGrey
+                    ),
+                  ),
+                ),
+                subtitle: const Text(
+                  "La création de l'Entreprise permet un fort référecemment pour l'échange de vos produits et Services",
+                  style: TextStyle(
+                      color: Colors.black45
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: size.height * 0.02,),
+          InkWell(
+            onTap: (){
               Navigator.push(context, MaterialPageRoute(builder: (context) => Categorie()));
             },
             child: Card(
@@ -74,7 +115,7 @@ class _Option_boutique extends State<Option_boutique>
                 title: Padding(
                   padding: EdgeInsets.only(bottom: 10.0),
                   child: Text(
-                      "Ajoutez catégories",
+                      "Ajoutez catégories Produit",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.blueGrey,
@@ -114,7 +155,7 @@ class _Option_boutique extends State<Option_boutique>
                 title: const Padding(
                   padding: EdgeInsets.only(bottom: 10.0),
                   child: Text(
-                    "Ajoutez un article",
+                    "Ajoutez un article | Service",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,

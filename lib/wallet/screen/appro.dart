@@ -437,10 +437,7 @@ class _Appro extends State<Appro>
                       }
                     })()),
                     padding: EdgeInsets.all(20),
-                    width: MediaQuery
-                        .of(context)
-                        .size
-                        .width - 40,
+                    width: MediaQuery.of(context).size.width - 40,
                     margin: EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                         color: Colors.white,

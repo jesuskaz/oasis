@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:oasisapp/catalog/views/home.dart';
+import 'package:oasisapp/catalog/views/list_entreprise.dart';
 import 'package:oasisapp/solde.dart';
 import 'package:oasisapp/wallet/component/appBar.dart';
 import 'package:oasisapp/wallet/component/card.dart';
@@ -96,7 +97,7 @@ class _Pay extends State<Pay>
               onPressed: () {
                 Navigator.pop(context);
               },
-              color: Colors.orange,
+              color: text_color,
               textColor: Colors.white,
               child: const Text(
                 'Ok',
@@ -109,9 +110,9 @@ class _Pay extends State<Pay>
               padding: EdgeInsets.all(10),
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => List_Entreprise()));
               },
-              color: Colors.orange,
+              color: text_color,
               textColor: Colors.white,
               child: const Text(
                 'Continuer',
@@ -148,7 +149,7 @@ class _Pay extends State<Pay>
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                color: Colors.orange,
+                color: text_color,
                 textColor: Colors.white,
                 child: const Text(
                   'Ok',
@@ -161,9 +162,9 @@ class _Pay extends State<Pay>
                 padding: EdgeInsets.all(10),
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => List_Entreprise()));
                 },
-                color: Colors.orange,
+                color: text_color,
                 textColor: Colors.white,
                 child: const Text(
                   'Continuer',
@@ -230,7 +231,7 @@ class _Pay extends State<Pay>
               onPressed: () {
                 Navigator.pop(context);
               },
-              color: Colors.orange,
+              color: text_color,
               textColor: Colors.white,
               child: Text(
                 'NON',
@@ -246,7 +247,7 @@ class _Pay extends State<Pay>
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              color: Colors.orange,
+              color: text_color,
               textColor: Colors.white,
               child: Text(
                 'OUI',
@@ -263,7 +264,7 @@ class _Pay extends State<Pay>
               return alert;
             });
       },
-      color: Colors.orange,
+      color: text_color,
       textColor: Colors.white,
       child: Text(
         'RETOUR',
@@ -279,7 +280,7 @@ class _Pay extends State<Pay>
         Navigator.pop(context);
         await passerCommande();
       },
-      color: Colors.orange,
+      color: text_color,
       textColor: Colors.white,
       child: Text(
         'CONFIRMER L\'APPRO',
@@ -545,12 +546,9 @@ class _Pay extends State<Pay>
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 700),
                       curve: Curves.bounceInOut,
-                      height: size.height * 0.5,
+                      height: size.height * 0.42,
                       padding: EdgeInsets.all(20),
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width - 40,
+                      width: MediaQuery.of(context).size.width - 20,
                       margin: EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
                           color: Colors.white,
@@ -604,7 +602,7 @@ class _Pay extends State<Pay>
                                             SizedBox(
                                               child: CircularProgressIndicator(
                                                 backgroundColor: Colors.white,
-                                                color: Colors.orange,
+                                                color: text_color,
                                               ),
                                               height: 20,
                                               width: 20,
@@ -614,13 +612,13 @@ class _Pay extends State<Pay>
                                   }
                                   else
                                     {
-                                      return const Text("ok"
-                                      //   "Article : ${snapshot.data[0]["article"]} - \n\nQuantités: ${snapshot.data[0]["qte"]} \nPrix-Unitaire: ${snapshot.data[0]["prix"]} \nPrix-Total: ${snapshot.data[0]["total"]} \n",
-                                      //   style: const TextStyle(
-                                      //       color: color_orange,
-                                      //       fontWeight: FontWeight.bold,
-                                      //       fontSize: 16),
-                                      //   textAlign: TextAlign.center,
+                                      return Text(
+                                        "Article : ${snapshot.data[0]["article"]} - \n\nQuantités: ${snapshot.data[0]["qte"]} \nPrix-Unitaire: ${snapshot.data[0]["prix"]} \nPrix-Total: ${snapshot.data[0]["total"]} \n",
+                                        style: const TextStyle(
+                                            color: text_color,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                        textAlign: TextAlign.center,
                                       );
                                     }
                                 },

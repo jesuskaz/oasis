@@ -1,19 +1,17 @@
-import 'package:oasisapp/catalog/views/boutique.dart';
-import 'package:oasisapp/catalog/views/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:oasisapp/Logout.dart';
 import 'package:oasisapp/catalog/views/option_boutique.dart';
 import 'package:oasisapp/tool.dart';
 import 'package:http/http.dart' as http;
 import 'package:oasisapp/page/qr_create_page.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-
-
 import 'dart:convert';
-// import 'package:mbangu/utilities/dbHelper.dart';
-// import 'package:mbangu/utilities/utils.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
+
+import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:oasisapp/catalog/credential/signin.dart';
 
 class NavBar extends StatefulWidget {
   @override
@@ -21,9 +19,16 @@ class NavBar extends StatefulWidget {
 }
 
 class _NavBar extends State<NavBar> {
+  late final Logout logout;
+
   var boolVal;
   var response;
   var state = false;
+
+  var noInternet = '';
+  bool networkOK = false;
+  late ProgressDialog progressDialog;
+  late SharedPreferences preferences;
 
   String token = '';
 
@@ -99,6 +104,209 @@ class _NavBar extends State<NavBar> {
     }
   }
 
+  void showAlertDialog(BuildContext context) {
+    // ignore: deprecated_member_use
+    Widget cancelButton = RaisedButton(
+      padding: EdgeInsets.all(10),
+      onPressed: () {
+        AlertDialog alert = AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const [
+                Text(
+                  "Voulez-vous retourner ? ",
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            // ignore: deprecated_member_use
+            RaisedButton(
+              padding: EdgeInsets.all(10),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              color: text_color0,
+              textColor: Colors.white,
+              child: const Text(
+                'NON',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            // ignore: deprecated_member_use
+            RaisedButton(
+              padding: EdgeInsets.all(10),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              color: text_color0,
+              textColor: Colors.white,
+              child: const Text(
+                'OUI',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          ],
+        );
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            });
+      },
+      color: text_color0,
+      textColor: Colors.white,
+      child: const Text(
+        'RETOUR',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    // ignore: deprecated_member_use
+    Widget continueButton = RaisedButton(
+      padding: EdgeInsets.all(10),
+      onPressed: () async {
+
+        preferences = await SharedPreferences.getInstance();
+        preferences.setString("token", "");
+        Navigator.push(context, MaterialPageRoute(builder: (context) => SigninScreen(),));
+      },
+      color: Colors.red,
+      textColor: Colors.white,
+      child: const Text(
+        'Oui',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: [
+            const Text(
+              "Message ",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            SizedBox(height: 10,),
+            const Text(
+              "Voulez-vous vous deconnecter ?",
+              style: TextStyle(
+                  color: text_color3
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 15, bottom: 4),
+              child: continueButton,
+            ),
+            cancelButton
+          ],
+        ),
+      ),
+    );
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
+  Future login() async {
+
+    preferences = await SharedPreferences.getInstance();
+    preferences.setString("token", "");
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SigninScreen(),));
+
+    // setState(() {
+    //   noInternet = '';
+    // });
+    //
+    // if(networkOK)
+    // {
+    //   showProgress();
+    //   String url = apiUrl + "auth/logout";
+    //
+    //   SharedPreferences pref = await SharedPreferences.getInstance();
+    //   String token = pref.getString("token").toString();
+    //
+    //   http.post(Uri.parse(url),
+    //       headers: <String, String> {"Authorization": "Bearer $token", "Accept": "application/json; charset=UTF-8"}).
+    //   timeout(const Duration(seconds: 40)).then((res) async
+    //   {
+    //     progressDialog.dismiss();
+    //
+    //     if (res.statusCode == 400)
+    //     {
+    //       var data = jsonDecode(res.body);
+    //       Fluttertoast.showToast(
+    //           msg: "",
+    //           toastLength: Toast.LENGTH_LONG,
+    //           backgroundColor: Colors.white,
+    //           textColor: Colors.grey);
+    //     }
+    //     if (res.statusCode == 200)
+    //     {
+    //       var data = jsonDecode(res.body);
+    //
+    //       if(data["status"] == true)
+    //       {
+    //         String token = data["data"]["token"];
+    //         var user = data["data"]["user"];
+    //         String user_id = user["id"].toString();
+    //         String avatar = user["avatar"].toString();
+    //
+    //         preferences = await SharedPreferences.getInstance();
+    //         preferences.setString("token", "");
+    //
+    //         Navigator.push(
+    //             context, MaterialPageRoute(builder: (context) => SigninScreen(),));
+    //       }
+    //     }
+    //   }).catchError((onError){
+    //     progressDialog.dismiss();
+    //
+    //     print(onError);
+    //
+    //     Fluttertoast.showToast(
+    //       msg: "Impossible d'atteindre le serveur distant.",
+    //       toastLength: Toast.LENGTH_SHORT,
+    //       backgroundColor: Colors.white,
+    //       textColor: Colors.black,
+    //     );
+    //   });
+    // }
+    // else
+    // {
+    //   Fluttertoast.showToast(
+    //     msg: "Vérifiez votre connexion internet.",
+    //     toastLength: Toast.LENGTH_LONG,
+    //     backgroundColor: Colors.white,
+    //     textColor: Colors.black,
+    //   );
+    // }
+  }
+  showProgress() {
+    progressDialog = ProgressDialog(
+      context: context,
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      loadingText: "Traitement en cours",
+    );
+    progressDialog.show();
+  }
+
   @override
   Widget build(BuildContext context)
   {
@@ -134,18 +342,18 @@ class _NavBar extends State<NavBar> {
             ),
             currentAccountPicture: CircleAvatar(
               child: ClipOval(
-                child: Image.asset(
-                  "assets/casque.jpeg",
-                  width: 95,
-                  height: 90,
-                  fit: BoxFit.cover,
-                ),
+                // child: Image.asset(
+                //   "assets/casque.jpeg",
+                //   width: 95,
+                //   height: 90,
+                //   fit: BoxFit.cover,
+                // ),
               ),
             ),
             decoration: const BoxDecoration(
               image: DecorationImage(
                   image: AssetImage(
-                    'assets/shoes.jpg',
+                    'images/oasis.jpg',
                   ),
                   fit: BoxFit.cover),
             ),
@@ -153,7 +361,7 @@ class _NavBar extends State<NavBar> {
           ListTile(
               leading: Icon(Icons.add_business_rounded),
               title: const Text(
-                "Boutique",
+                "Entreprise",
                 style: TextStyle(
                   color: color_grey,
                   fontSize: taille2,
@@ -229,14 +437,14 @@ class _NavBar extends State<NavBar> {
           ListTile(
               leading: Icon(Icons.exit_to_app),
               title: const Text(
-                "Se Connecte/Se Deconnecter",
+                "Se Deconnecter",
                 style: TextStyle(
                   color: color_grey,
                   fontSize: taille2,
                 ),
               ),
               onTap: () {
-                // showAlertDialog(context);
+                showAlertDialog(context);
               })
         ],
       ),

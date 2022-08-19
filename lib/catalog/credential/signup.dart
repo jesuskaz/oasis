@@ -1,10 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
 import 'package:oasisapp/catalog/credential/next_signup.dart';
 import 'package:oasisapp/catalog/credential/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oasisapp/tool.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -13,23 +18,289 @@ class SignupScreen extends StatefulWidget {
   _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen>
+class _SignupScreenState extends State<SignupScreen> with CodeAutoFill
 {
+
   TextEditingController phone = TextEditingController();
   TextEditingController email = TextEditingController();
 
   String initialCountry = 'CD';
   PhoneNumber number = PhoneNumber(isoCode: 'CD');
   final _formKey = GlobalKey<FormState>();
+  String codeValue = "";
+  String? appSignature;
 
+  bool isTrue = false;
   var tel;
+  late ProgressDialog progressDialog;
 
-  Widget _email(
-      IconData icon,
-      String hint,
-      TextInputType inputType,
-      TextInputAction inputAction,
-      ) {
+  showProgress() {
+    progressDialog = ProgressDialog(
+      context: context,
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      loadingText: "Traitement en cours",
+    );
+    progressDialog.show();
+  }
+
+  @override
+  void codeUpdated() {
+    setState(() {
+      codeValue = code!;
+    });
+
+    print("Update code $code");
+    setState(() {
+      print("Code updated");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    listenForCode();
+
+    SmsAutoFill().getAppSignature.then((signature) {
+      setState(() {
+        appSignature = signature;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    SmsAutoFill().unregisterListener();
+    print("UnregisterListener");
+    super.dispose();
+  }
+  // void submit(context) async {
+  //   if(tel == "") return;
+  //
+  //   var appSignatureId = await SmsAutoFill().getAppSignature;
+  //   print("SIGNATURE ::: $appSignatureId");
+  //
+  // }
+
+  // @override
+  // void initState()
+  // {
+  //   super.initState();
+  //   listenOtp();
+  // }
+
+
+  void listenOtp() async {
+    await SmsAutoFill().unregisterListener();
+    listenForCode();
+    await SmsAutoFill().listenForCode;
+    print("LISTEN CODE");
+  }
+
+  Future checkPhone(String phone, BuildContext context) async
+  {
+    await Firebase.initializeApp();
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
+    showProgress();
+
+    _auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        timeout: Duration(seconds: 60),
+        verificationCompleted: (AuthCredential credential) async {
+          progressDialog.dismiss();
+
+          var result = await _auth.signInWithCredential(credential);
+          var user = result.user;
+
+          if(user != null)
+          {
+            setState(() {
+              isTrue = true;
+            });
+            Navigator.push(context, MaterialPageRoute(builder: (context) => NextSignup(tel, email.text)));
+          }
+          else
+          {
+            print("Error");
+          }
+        },
+        verificationFailed: (FirebaseAuthException exception)
+        {
+          progressDialog.dismiss();
+          AlertDialog alert = AlertDialog(
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: const [
+                  Text(
+                    "Message",
+                  ),
+                  SizedBox(height: 3,),
+                  Text(
+                    "Erreur lors de la reception du code OTP. Veuillez reésayer",
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              // ignore: deprecated_member_use
+              RaisedButton(
+                padding: EdgeInsets.all(10),
+                onPressed: () {
+                  Navigator.pop(context);
+
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Text(
+                  'Ok',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alert;
+              });
+        },
+        codeSent: (String verificationId, [int? forceResendingToken])
+        {
+          progressDialog.dismiss();
+          showDialog(context: context, barrierDismissible: false, builder: (context) {
+                return AlertDialog(
+                  title: Text("Veuillez saisir le code envoyer a votre numéro"),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      PinFieldAutoFill(
+                        currentCode: codeValue,
+                        codeLength: 6,
+                        onCodeChanged: (code){
+                          print("OnChanged $code");
+                          codeValue = code.toString();
+                        },
+                        onCodeSubmitted: (val){
+                          print("OnCodeSubmitted $val");
+                        },
+                      )
+                    ],
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: const Text(
+                          "Fermer",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      textColor: Colors.white,
+                      color: Colors.red,
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: const Text(
+                          "Verifiez Code",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      textColor: Colors.white,
+                      color: text_color,
+                      onPressed: () async {
+                        // Navigator.pop(context);
+
+                        showProgress();
+                        final code = codeValue.trim();
+
+                        print("CODE VALUE ::: ${code}");
+                        PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
+                        try
+                        {
+                          var result = await _auth.signInWithCredential(credential);
+                          var user = result.user;
+                          print("USER DATA ::: ${user != null}");
+                          if(user != null)
+                          {
+                            setState(() {
+                              isTrue = true;
+                            });
+                            progressDialog.dismiss();
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => NextSignup(tel, email.text)));
+                          }
+                          else
+                          {
+                            progressDialog.dismiss();
+                            print("============>>>>>>>>> EEEEEERRRRRROOOOOOORRRR ${user}");
+                          }
+                        }
+                        catch (e)
+                        {
+                          progressDialog.dismiss();
+                          print(e);
+                        }
+                      },
+                    ),
+                  ],
+                );
+              }
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId)
+        {
+          if(isTrue)
+            {
+              return ;
+            }
+          progressDialog.dismiss();
+          AlertDialog alert = AlertDialog(
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: const [
+                  Text(
+                    "Message",
+                  ),
+                  SizedBox(height: 3,),
+                  Text(
+                    "Code OTP incorrect. Veuillez reéssayer le code OTP",
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              // ignore: deprecated_member_use
+              RaisedButton(
+                padding: EdgeInsets.all(10),
+                onPressed: () {
+                  Navigator.pop(context);
+
+                },
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Text(
+                  'Ok',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alert;
+              });
+        }
+    );
+  }
+
+  Widget _email(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
       child: Center(
@@ -67,12 +338,7 @@ class _SignupScreenState extends State<SignupScreen>
       // ),
     );
   }
-  Widget _telephone(
-      IconData icon,
-      String hint,
-      TextInputType inputType,
-      TextInputAction inputAction,
-      ) {
+  Widget _telephone(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
       child: Center(
@@ -175,24 +441,10 @@ class _SignupScreenState extends State<SignupScreen>
                               )
                           ),
                         ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        _telephone(
-                          Icons.email,
-                          'Téléphone',
-                          TextInputType.name,
-                          TextInputAction.next,
-                        ),
-                        _email(
-                          Icons.email,
-                          'Email',
-                          TextInputType.name,
-                          TextInputAction.next,
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
+                        const SizedBox(height: 30,),
+                        _telephone(Icons.email, 'Téléphone', TextInputType.name, TextInputAction.next,),
+                        _email(Icons.email, 'Email', TextInputType.name, TextInputAction.next,),
+                        const SizedBox(height: 5,),
                         Container(
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -247,7 +499,8 @@ class _SignupScreenState extends State<SignupScreen>
                                   {
                                     if(_formKey.currentState!.validate())
                                     {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => NextSignup(tel, email.text)));
+                                      // submit(context);
+                                      checkPhone(tel, context);
                                     }
                                   },
                                 )

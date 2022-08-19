@@ -1,7 +1,6 @@
 import 'package:oasisapp/tool.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:oasisapp/wallet//component.dart';
+import 'package:oasisapp/wallet/component.dart';
 
 import 'appro.dart';
 import 'home.dart';
@@ -291,7 +290,7 @@ class _DetailWalletScreenState extends State<DetailWalletScreen>
                           left: 20,
                           child: Row(
                             children: [
-                              _dot(size: 18, color: Colors.orangeAccent),
+                              _dot(size: 18, color: text_color),
                               Text(
                                 '1BTC=\$5.483',
                                 style: TextStyle(

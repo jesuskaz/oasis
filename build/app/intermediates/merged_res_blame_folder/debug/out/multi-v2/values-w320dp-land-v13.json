@@ -4,7 +4,7 @@
             "outputFile": "D:\\oasisapp\\build\\app\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-w320dp-land-v13\\values-w320dp-land-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Kid\\.gradle\\caches\\transforms-3\\e9fa0d62ef59a9be25863d0cdf675f20\\transformed\\material-1.3.0\\res\\values-w320dp-land-v13\\values-w320dp-land-v13.xml",
+                    "source": "C:\\Users\\Kid\\.gradle\\caches\\transforms-3\\8cd13916ccc5461ece756802fa790ba5\\transformed\\material-1.3.0\\res\\values-w320dp-land-v13\\values-w320dp-land-v13.xml",
                     "from": {
                         "startLines": "2,3,4",
                         "startColumns": "4,4,4",
