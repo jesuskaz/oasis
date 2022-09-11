@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart';
 import 'package:oasisapp/catalog/views/article.dart';
 import 'package:oasisapp/catalog/views/categorie.dart';
+import 'package:oasisapp/catalog/views/edit_entreprise/mes_entreprise.dart';
 import 'package:oasisapp/catalog/views/entreprise.dart';
 import 'package:oasisapp/tool.dart';
 import 'package:oasisapp/wallet/screen/home.dart';
@@ -165,6 +166,46 @@ class _Option_boutique extends State<Option_boutique>
                 ),
                 subtitle: const Text(
                   "Vendez vos services et produits à tout le monde sans aucune contrainte",
+                  style: TextStyle(
+                      color: Colors.black45
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: size.height * 0.02,),
+          InkWell(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Mes_Entreprise()));
+            },
+            child: Card(
+              child: ListTile(
+                leading: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.blue.shade50,
+                  ),
+                  height: 50,
+                  width: 50,
+                  child: Icon(
+                    Icons.social_distance,
+                    size: 30,
+                    color: Colors.blue.shade400,
+                  ),
+                ),
+                title: const Padding(
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  child: Text(
+                    "Mes Entreprises",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.blueGrey
+                    ),
+                  ),
+                ),
+                subtitle: const Text(
+                  "Visualisez toutes vos Entreprises | Modification",
                   style: TextStyle(
                       color: Colors.black45
                   ),

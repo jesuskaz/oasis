@@ -15,14 +15,17 @@ import 'dart:convert';
 import 'package:path/path.dart' as path;
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-class Entreprise extends StatefulWidget {
+class Edit_Entreprise extends StatefulWidget {
+  String id;
+  Edit_Entreprise(this.id);
+
   @override
-  _Entreprise createState() => _Entreprise();
+  _Edit_Entreprise createState() => _Edit_Entreprise();
 }
 
-class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
+class _Edit_Entreprise extends State<Edit_Entreprise> with TickerProviderStateMixin {
 
-  TextEditingController nom_entreprise = TextEditingController();
+  TextEditingController nom_Edit_Entreprise = TextEditingController();
   TextEditingController description = TextEditingController();
   TextEditingController adresse = TextEditingController();
   TextEditingController phone = TextEditingController();
@@ -31,28 +34,28 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
   TextEditingController site_web = TextEditingController();
 
   String token = '';
-  late String _selectedCat;
   bool process = false;
   bool processCat = false;
   var noInternet = '';
   bool networkOK = false;
   var file_image;
+  var tab = [];
 
   var tel;
+  String url = '';
+
   String initialCountry = 'CD';
   PhoneNumber number = PhoneNumber(isoCode: 'CD');
 
   Dio dio = new Dio();
   late ProgressDialog progressDialog;
 
-
   late http.Response response;
-  late http.Response responseCat;
+  late http.Response responseEnt;
 
   // Categorie
   Connectivity connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> subscription;
-
 
   @override
   void dispose() {
@@ -76,27 +79,27 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
       });
     }
   }
-  // Future getcategorie() async {
-  //
-  //   SharedPreferences pref = await SharedPreferences.getInstance();
-  //   token = pref.getString("token").toString();
-  //
-  //   setState(() {
-  //     processCat = true;
-  //   });
-  //   String url = apiUrl + "categorie-article";
-  //
-  //   responseCat = await http.get(Uri.parse(url), headers: <String, String>{
-  //     "Authorization": "Bearer $token", "Accept": "application/json; charset=UTF-8"
-  //   });
-  //
-  //   var tab = [];
-  //   if (responseCat.statusCode == 200) {
-  //     try {
-  //       tab = [jsonDecode(responseCat.body)];
-  //     } catch (e) {}
-  //   }
-  // }
+  Future getentreprise() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    token = pref.getString("token").toString();
+    String id = widget.id;
+
+    String url = apiUrl + "entreprise/$id";
+
+    responseEnt = await http.get(Uri.parse(url), headers: <String, String>{
+      "Authorization": "Bearer $token", "Accept": "application/json; charset=UTF-8"
+    });
+    if (responseEnt.statusCode == 200) {
+
+      var t = [jsonDecode(responseEnt.body)];
+      if(t[0]["status"] == true)
+      {
+        setState((){
+          tab = [t[0]["data"]];
+        });
+      }
+    }
+  }
   showProgress() {
     progressDialog = ProgressDialog(
       context: context,
@@ -217,7 +220,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             ),
             SizedBox(height: 10,),
             Text(
-              "Voulez-vous ajouter l'entreprise ${nom_entreprise.text.toString()} a votre compte ?",
+              "Voulez-vous ajouter l'Edit_Entreprise ${nom_Edit_Entreprise.text.toString()} a votre compte ?",
               style: TextStyle(
                   color: text_color3
               ),
@@ -251,11 +254,11 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
     if(networkOK)
     {
       showProgress();
-      String url = apiUrl + "entreprise";
+      url = apiUrl + "entreprise/update/${widget.id}";
       if(file_image != null)
       {
         FormData data = FormData.fromMap({
-          "entreprise": nom_entreprise.text,
+          "Edit_Entreprise": nom_Edit_Entreprise.text,
           "adresse": adresse.text,
           "telephone": tel.toString(),
           "email": email.text,
@@ -275,10 +278,12 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
 
           if(res.statusCode == 200)
           {
+            print(res.data);
+
             if(res.data["status"] == true)
             {
               Fluttertoast.showToast(
-                msg: "Votre Entreprise a été enregistrée avec succès",
+                msg: "Votre Edit_Entreprise a été enregistrée avec succès",
                 toastLength: Toast.LENGTH_SHORT,
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
@@ -304,13 +309,15 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             );
           }
         }).catchError((onError) async {
-
           progressDialog.dismiss();
           if(onError.response.statusCode == 400)
           {
+
+            print("VOYONS L'ERREUR :::: ${onError.statusCode}");
             var body = await onError.response.data;
             List msg = body["data"]["errors_msg"];
             var msg2 = msg.join(',');
+            print("URL ::: ${url}");
 
             Fluttertoast.showToast(
               msg: "$msg2",
@@ -320,6 +327,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             );
             return ;
           }
+
           print(onError.response!.data);
           print(onError.response!.headers);
           print(onError.response!.requestOptions);
@@ -353,12 +361,12 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
       );
     }
   }
-  Widget _nomEntreprise(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
+  Widget _nomEdit_Entreprise(IconData icon, String hint, TextInputType inputType, TextInputAction inputAction,) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
       child: Center(
         child: TextFormField(
-          controller: nom_entreprise,
+          controller: nom_Edit_Entreprise,
           style: TextStyle(color: Colors.blueGrey),
           validator: (value) {
             if (value!.isEmpty) {
@@ -616,9 +624,10 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
   @override
   initState() {
     checkNetwork();
-    // getcategorie();
+    getentreprise();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -634,7 +643,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text('Parametrez votre Entreprise',
+        title: const Text('Parametrez votre Edit_Entreprise',
             style: TextStyle(
                 fontFamily: 'Varela', fontSize: 20.0, color: Colors.white)),
         actions: <Widget>[
@@ -669,7 +678,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
                   ),
                   SizedBox(height: 10,),
                   const Text(
-                    "Ajoutez le logo de l'Entreprise",
+                    "Ajoutez le logo de l'Edit_Entreprise",
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -692,9 +701,9 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
           ),
           Padding(
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
-            child: _nomEntreprise(
+            child: _nomEdit_Entreprise(
               Icons.account_balance,
-              'Entrez le nom de l\'Entreprise',
+              tab.length > 0 ? tab[0]["entreprise"] : 'Entrez le nouveau nom de l\'Entreprise',
               TextInputType.name,
               TextInputAction.next,
             ),
@@ -703,7 +712,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
             child: _description(
               Icons.article,
-              'Entrez la description',
+              tab.length > 0 ? tab[0]["description"] : 'Entrez la description',
               TextInputType.name,
               TextInputAction.next,
             ),
@@ -712,7 +721,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
             child: _phone(
               Icons.article,
-              'Entrez le numéro de téléphone',
+              tab.length > 0 ? tab[0]["telephone"] : 'Nouveau numéro de téléphone',
               TextInputType.name,
               TextInputAction.next,
             ),
@@ -721,7 +730,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
             child: _email(
               Icons.email,
-              'Entrez l\'adresse E-mail',
+              tab.length > 0 ? tab[0]["email"] : 'Nouvelle adresse E-mail',
               TextInputType.name,
               TextInputAction.next,
             ),
@@ -730,7 +739,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
             child: _site(
               Icons.web,
-              'Entrez le lien du site Internet',
+              tab.length > 0 ? tab[0]["site_web"] : 'lien du site Internet',
               TextInputType.name,
               TextInputAction.next,
             ),
@@ -739,7 +748,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
             child: _localisation(
               Icons.reduce_capacity_rounded,
-              'Entrez la Localisation',
+              tab.length > 0 ? tab[0]["localisation"] : 'Entrez la Localisation',
               TextInputType.name,
               TextInputAction.next,
             ),
@@ -748,7 +757,7 @@ class _Entreprise extends State<Entreprise> with TickerProviderStateMixin {
             padding: EdgeInsets.only(left: 25.0, right: 25.0),
             child: _adresse(
               Icons.location_city_sharp,
-              'Entrez l\'adresse',
+              tab.length > 0 ? tab[0]["adresse"] : 'Entrez l\'adresse',
               TextInputType.name,
               TextInputAction.next,
             ),

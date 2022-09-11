@@ -230,6 +230,7 @@ class _SigninScreenState extends State<SigninScreen>
 
       http.post(Uri.parse(url), body: data,).timeout(const Duration(seconds: 40)).then((res) async {
         progressDialog.dismiss();
+        print("STATUS CODE IS :::: ${res.body}");
 
         if (res.statusCode == 400)
         {

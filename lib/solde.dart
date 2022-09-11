@@ -19,8 +19,7 @@ class _SoldeState extends State<Solde>
 
   List listData = [];
 
-  Future getSolde() async
-  {
+  Future getSolde() async {
     String url = apiUrl + "solde";
 
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -28,25 +27,23 @@ class _SoldeState extends State<Solde>
 
     final response = await http.get(Uri.parse(url), headers: {'Authorization': "Bearer $token", 'Accept': 'application/json'});
 
+    print("STATUS :::: ${response.body}");
+
     if (response.statusCode == 200)
     {
       var r = json.decode(response.body);
-      if(mounted)
-        setState(() {
-          listData = r["data"];
-        });
+      listData = r["data"];
     }
+    return listData;
   }
   @override
   void initState() {
-    getSolde();
     super.initState();
   }
   @override
   Widget build(BuildContext context)
   {
     getSolde();
-
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -108,11 +105,36 @@ class _SoldeState extends State<Solde>
                     const SizedBox(height: 10),
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          child: Text(listData.isEmpty ? "USD 0" : "${listData[0]["devise"]} ${listData[0]["montant"]}",
-                            style: const TextStyle(fontWeight: FontWeight.bold,
-                                fontSize: 18, color: text_color1),)
-                        ),
+                        FutureBuilder(
+                            future: getSolde(),
+                            builder: (BuildContext context, AsyncSnapshot snapshot) {
+                              print("SNAPSHOT DATA :::: ${snapshot.data}");
+                              if (snapshot.data == null) {
+                                return const Center(
+                                  child: SizedBox(
+                                    child: CircularProgressIndicator(
+                                      color: color_white,
+                                    ),
+                                    height: 20,
+                                    width: 20,
+                                  ),
+                                );
+                              }
+                              if (snapshot.data.length <= 0) {
+                                return Text('USD 0',
+                                    style: TextStyle(fontWeight: FontWeight.bold,
+                                        fontSize: 18, color: color_white));
+                              }
+                              else
+                                {
+                                  return Text("${snapshot.data[0]["devise"]} ${snapshot.data[0]["montant"]}",
+                                      style: TextStyle(fontWeight: FontWeight.bold,
+                                          fontSize: 18, color: color_white)
+                                  );
+
+                                }
+                            }
+                        )
                       ],
                     ),
                   ],
@@ -178,23 +200,34 @@ class _SoldeState extends State<Solde>
                     const SizedBox(height: 10),
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          child: listData.isEmpty ? Center(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: const [
-                                  SizedBox(
+                        FutureBuilder(
+                            future: getSolde(),
+                            builder: (BuildContext context, AsyncSnapshot snapshot) {
+                              print("SNAPSHOT DATA :::: ${snapshot.data}");
+                              if (snapshot.data == null) {
+                                return const Center(
+                                  child: SizedBox(
                                     child: CircularProgressIndicator(
-                                      backgroundColor: Colors.white,
-                                      color: Colors.green,
+                                      color: color_white,
                                     ),
                                     height: 20,
                                     width: 20,
                                   ),
-                                ],
-                              )) : Text(listData.isEmpty ? "CDF 0 " : "${listData[1]["devise"]} ${listData[1]["montant"]}",
-                            style: const TextStyle(fontWeight: FontWeight.bold,
-                                fontSize: 18, color: text_color1),),
+                                );
+                              }
+                              if (snapshot.data.length <= 0) {
+                                return Text('CDF 0',
+                                    style: TextStyle(fontWeight: FontWeight.bold,
+                                        fontSize: 18, color: color_white));
+                              }
+                              else
+                              {
+                                return Text("${snapshot.data[1]["devise"]} ${snapshot.data[1]["montant"]}",
+                                    style: TextStyle(fontWeight: FontWeight.bold,
+                                        fontSize: 18, color: color_white)
+                                );
+                              }
+                            }
                         )
                       ],
                     ),

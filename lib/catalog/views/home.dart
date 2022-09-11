@@ -22,7 +22,12 @@ import 'navbar.dart';
 
 class Home extends StatefulWidget {
   String id;
-  Home(this.id);
+  String iconUrl;
+  String phone;
+  String email;
+  String titre;
+
+  Home(this.id, this.iconUrl, this.phone, this.email, this.titre);
 
   @override
   State<Home> createState() => _HomeState();
@@ -457,8 +462,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         backgroundColor: text_color,
         elevation: 1.0,
         centerTitle: true,
-        title: const Text(
-            'Oasis Business',
+        title: Text(
+            '${widget.titre}',
             style: TextStyle(
                 fontFamily: 'Varela',
                 fontSize: 20.0,
@@ -505,113 +510,146 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ],
       ),
       backgroundColor: Color(0xFFFCFAF8),
-      body: Container(
-        child: FutureBuilder(
-          future: getArticle(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.data == null) {
-                return Container(
-                  height: 400,
-                  child: const Center(
-                    child: SizedBox(
-                      child: CircularProgressIndicator(
-                        color: text_color,
-                      ),
-                      height: 40,
-                      width: 40,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(Duration(milliseconds: 1500));
+          setState(() {});
+        },
+        child: Column(
+          children: [
+            Hero(
+                tag: widget.iconUrl,
+                child: Container(
+                    height: size.height * 0.2, width: double.infinity,
+                    decoration: BoxDecoration(image:
+                    DecorationImage(image: NetworkImage(widget.iconUrl), fit: BoxFit.cover)))
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.email, color: text_color0,),
+                    Text(widget.email, style: TextStyle(color: text_color0, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                );
-              }
-              if (snapshot.data.length <= 0) {
-                return Center(
-                  child: const Text('Aucun Article existant',
-                      style: TextStyle(
-                          color: Colors.black45,
-                          fontWeight: FontWeight.bold
-                      )),
-                );
-              }
-              return Container(
-                child: GridView.builder(
-                    itemCount: snapshot.data.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10.0,
-                        mainAxisSpacing: 0.0,
-                        childAspectRatio: 0.8,
-                    ),
-                    itemBuilder: (BuildContext context, index) {
-
-                      final liste = snapshot.data[index];
-                      print("NEW DATA ::: $liste");
-
-                      return Padding(
-                          padding: const EdgeInsets.only(top: 10.0, bottom: 0.0, left: 5.0, right: 5.0),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.2),
-                                        spreadRadius: 3.0,
-                                        blurRadius: 5.0)
-                                  ],
-                                  color: Colors.white),
-                              child: Column(children: [
-                                Padding(
-                                    padding: EdgeInsets.all(5.0),
-                                    child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [ IconButton(
-                                            onPressed: (){
-                                              addPanier();
-                                            },
-                                            icon: const Icon(Icons.shopping_cart_rounded,
-                                                color: text_color0),
-                                          ), IconButton(
-                                            onPressed: () async {
-                                              const url = "https://pub.dev/packages/share_plus/install";
-
-                                              final parser = Uri.parse(url);
-                                              final response = await http.get(parser);
-                                              // await Share.share(url);
-                                              final byte = response.bodyBytes;
-
-                                              // final temp = await getTemporaryDirectory();
-                                              final path = '${liste["image"]}';
-                                              // File(path).writeAsBytesSync(byte);
-
-                                            },
-                                            icon: Icon(Icons.share, color: text_color0),
-                                          )])),
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => Detail(assetPath: liste["image"], prix:liste["prix"], devise: liste["devise"], titre: liste["article"], description: liste["description"], id_article: liste["id"])));
-                                  },
-                                  child: Hero(
-                                      tag: liste["image"],
-                                      child: Container(
-                                          height: 80.0, width: 80.0,
-                                          decoration: BoxDecoration(image:
-                                          DecorationImage(image: NetworkImage(liste["image"]), fit: BoxFit.cover)))
-                                  ),
-                                ),
-                                SizedBox(height: 7.0),
-                                Text(liste["article"], style: const TextStyle(color: text_color0,
-                                    fontFamily: 'Varela',
-                                    fontSize: 14.0,
-                                  fontWeight: FontWeight.bold
-                                )),
-                                SizedBox(height: 10,),
-                                Text("${liste["prix"].toString()} ${liste["devise"]}", style: const TextStyle(color: text_color0, fontFamily: 'Varela', fontSize: 14.0)),
-                                Padding(padding: EdgeInsets.all(8.0), child: Container(color: Color(0xFFEBEBEB), height: 1.0)),
-                                Padding(padding: EdgeInsets.only(left: 5.0, right: 5.0), child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,))])));
-                    }
+                  ],
                 ),
-              );
-            }
+                Row(
+                  children: [Icon(Icons.phone, color: text_color0,),
+                    Text(widget.phone, style: TextStyle(color: text_color0, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                )
+              ],
+            ),
+            Divider(thickness: 10,),
+            Divider(),
+            FutureBuilder(
+                future: getArticle(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.data == null) {
+                    return Container(
+                      height: size.height * 0.4,
+                      child: const Center(
+                        child: SizedBox(
+                          child: CircularProgressIndicator(
+                            color: text_color,
+                          ),
+                          height: 40,
+                          width: 40,
+                        ),
+                      ),
+                    );
+                  }
+                  if (snapshot.data.length <= 0) {
+                    return Center(
+                      child: const Text('Aucun Article existant',
+                          style: TextStyle(
+                              color: Colors.black45,
+                              fontWeight: FontWeight.bold
+                          )),
+                    );
+                  }
+                  return Expanded(
+                    child: GridView.builder(
+                        shrinkWrap: true,
+                        itemCount: snapshot.data.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10.0,
+                          mainAxisSpacing: 0.0,
+                          childAspectRatio: 0.8,
+                        ),
+                        itemBuilder: (BuildContext context, index) {
+                          final liste = snapshot.data[index];
+                          return Padding(
+                              padding: const EdgeInsets.only(top: 10.0, bottom: 0.0, left: 5.0, right: 5.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Colors.grey.withOpacity(0.2),
+                                            spreadRadius: 3.0,
+                                            blurRadius: 5.0)
+                                      ],
+                                      color: Colors.white),
+                                  child: Column(children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(5.0),
+                                        child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [ IconButton(
+                                              onPressed: (){
+                                                addPanier();
+                                              },
+                                              icon: const Icon(Icons.shopping_cart_rounded,
+                                                  color: text_color0),
+                                            ), IconButton(
+                                              onPressed: () async {
+                                                const url = "https://pub.dev/packages/share_plus/install";
+
+                                                final parser = Uri.parse(url);
+                                                final response = await http.get(parser);
+                                                // await Share.share(url);
+                                                final byte = response.bodyBytes;
+
+                                                // final temp = await getTemporaryDirectory();
+                                                final path = '${liste["image"]}';
+                                                // File(path).writeAsBytesSync(byte);
+
+                                              },
+                                              icon: Icon(Icons.share, color: text_color0),
+                                            )])),
+                                    InkWell(
+                                      onTap: () {
+                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => Detail(assetPath: liste["image"], prix:liste["prix"], devise: liste["devise"], titre: liste["article"], description: liste["description"], id_article: liste["id"])));
+                                      },
+                                      child: Hero(
+                                          tag: liste["image"],
+                                          child: Container(
+                                              height: 80.0, width: 80.0,
+                                              decoration: BoxDecoration(image:
+                                              DecorationImage(image: NetworkImage(liste["image"]), fit: BoxFit.cover)))
+                                      ),
+                                    ),
+                                    SizedBox(height: 7.0),
+                                    Text(liste["article"], style: const TextStyle(color: text_color0,
+                                        fontFamily: 'Varela',
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.bold
+                                    )),
+                                    SizedBox(height: 10,),
+                                    Text("${liste["prix"].toString()} ${liste["devise"]}", style: const TextStyle(color: text_color0, fontFamily: 'Varela', fontSize: 14.0)),
+                                    Padding(padding: EdgeInsets.all(8.0), child: Container(color: Color(0xFFEBEBEB), height: 1.0)),
+                                    Padding(padding: EdgeInsets.only(left: 5.0, right: 5.0), child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,))])));
+                        }
+                    ),
+                  );
+                }
+            )
+          ],
         ),
       ),
       bottomNavigationBar: Container(
@@ -709,96 +747,4 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       ),
     );
   }
-  // Widget _buildCard(String name, String price, String imgPath, bool added, bool isFavorite, context) {
-  //   return Padding(
-  //       padding: const EdgeInsets.only(top: 5.0, bottom: 0.0, left: 5.0, right: 5.0),
-  //       child: Container(
-  //           decoration: BoxDecoration(
-  //               borderRadius: BorderRadius.circular(15.0),
-  //               boxShadow: [
-  //                 BoxShadow(
-  //                     color: Colors.grey.withOpacity(0.2),
-  //                     spreadRadius: 3.0,
-  //                     blurRadius: 5.0)
-  //               ],
-  //               color: Colors.white),
-  //           child: Column(children: [
-  //             Padding(
-  //                 padding: EdgeInsets.all(5.0),
-  //                 child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       IconButton(
-  //                         onPressed: (){
-  //                             addPanier();
-  //                           },
-  //                         icon: const Icon(Icons.shopping_cart_rounded,
-  //                             color: text_color0),
-  //                       ),
-  //                       IconButton(
-  //                         onPressed: () async
-  //                         {
-  //                           const url = "https://pub.dev/packages/share_plus/install";
-  //
-  //                           final parser = Uri.parse(url);
-  //                           final response = await http.get(parser);
-  //                           // await Share.share(url);
-  //                           final byte = response.bodyBytes;
-  //
-  //                           final temp = await getTemporaryDirectory();
-  //                           final path = '${temp.path}/image.jpg';
-  //                           // File(path).writeAsBytesSync(byte);
-  //
-  //                         },
-  //                         icon: Icon(Icons.share, color: text_color0),
-  //                       )
-  //                     ])),
-  //             InkWell(
-  //               onTap: () {
-  //                 Navigator.of(context).push(
-  //                     MaterialPageRoute(builder: (context) => Detail(
-  //                         assetPath: imgPath,
-  //                         prix:price,
-  //                         titre: name
-  //                     )));
-  //               },
-  //               child: Hero(
-  //                   tag: imgPath,
-  //                   child: Container(
-  //                       height: 75.0,
-  //                       width: 75.0,
-  //                       decoration: BoxDecoration(
-  //                           image: DecorationImage(
-  //                               image: AssetImage(imgPath),
-  //                               fit: BoxFit.contain)))),
-  //             ),
-  //             SizedBox(height: 7.0),
-  //             Text(price,
-  //                 style: const TextStyle(
-  //                     color: text_color0,
-  //                     fontFamily: 'Varela',
-  //                     fontSize: 14.0)),
-  //             Text(name,
-  //                 style: const TextStyle(
-  //                     color: text_color0,
-  //                     fontFamily: 'Varela',
-  //                     fontSize: 14.0)),
-  //             Padding(
-  //                 padding: EdgeInsets.all(8.0),
-  //                 child: Container(color: Color(0xFFEBEBEB), height: 1.0)),
-  //             Padding(
-  //                 padding: EdgeInsets.only(left: 5.0, right: 5.0),
-  //                 child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                     children: const [
-  //                       Icon(Icons.shopping_basket,
-  //                           color: text_color0, size: 12.0),
-  //                       Text('Ajouter au panier',
-  //                           style: TextStyle(
-  //                               fontFamily: 'Varela',
-  //                               color: text_color0,
-  //                               fontSize: 12.0))
-  //                     ]))
-  //           ])));
-  // }
 }

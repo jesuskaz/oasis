@@ -49,9 +49,9 @@ final kHintTextStyle = TextStyle(
 );
 
 // const apiUrl = "http://192.168.43.3:8000/api/";
-// const apiUrl = "http://192.168.42.63:8000/api/";
+const apiUrl = "http://192.168.1.113:8000/api/";
 // const apiUrl = "http://192.168.42.159:8000/api/";
-const apiUrl = "https://oasisapp.tech/api/";
+// const apiUrl = "https://oasisapp.tech/api/";
 
 const ressourceBasePath = apiUrl;
 

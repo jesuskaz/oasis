@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:oasisapp/catalog/views/edit_entreprise/edit_entreprise.dart';
 import 'package:oasisapp/screens/homepage.dart';
 import 'package:oasisapp/wallet/screen/appro.dart';
 
@@ -15,20 +16,16 @@ import 'dart:convert';
 import 'package:oasisapp/catalog/views/home.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 
-import '../../wallet/screen/historique.dart';
-import 'navbar.dart';
-
-class List_Entreprise extends StatefulWidget
+class Mes_Entreprise extends StatefulWidget
 {
   @override
-  _List_EntrepriseState createState() => _List_EntrepriseState();
+  _Mes_EntrepriseState createState() => _Mes_EntrepriseState();
 }
 
-class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProviderStateMixin
+class _Mes_EntrepriseState extends State<Mes_Entreprise> with SingleTickerProviderStateMixin
 {
 
   List listData = [];
-
   bool process = false;
   List listDevise = [];
 
@@ -72,7 +69,6 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
       });
     });
   }
-
   showProgress() {
     progressDialog = ProgressDialog(
       context: context,
@@ -162,200 +158,8 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
       builder: buildSheet,
       headerBuilder: buildHeader,
     ));
-    GestureDetector buildNavBarAppro(IconData iconLink, int index, String message) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedItemIndex = index;
-          });
-        },
-        child: Container(
-          width: MediaQuery.of(context).size.width / 5,
-          height: 60,
-          decoration: index == _selectedItemIndex
-              ? BoxDecoration(
-              border:
-              Border(bottom: BorderSide(width: 4, color: text_color0)),
-              gradient: LinearGradient(colors: [
-                Colors.green.withOpacity(0.3),
-                Colors.green.withOpacity(0.016),
-              ], begin: Alignment.bottomCenter, end: Alignment.topCenter))
-              : BoxDecoration(),
-          // ignore: deprecated_member_use
-          child: RaisedButton(
-            padding: EdgeInsets.only(top: 5),
-            onPressed: ()
-            {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => Appro()),
-              );
-            },
-            elevation: 0,
-            color: Colors.white,
-            child: Column(
-              children: [
-                Icon(
-                  iconLink,
-                  color: index == _selectedItemIndex ? text_color0 : text_color2,),
-                Text(message, style: TextStyle(color: Colors.grey),),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    GestureDetector buildNavBarTrans(IconData iconLink, int index, String message) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedItemIndex = index;
-          });
-        },
-        child: Container(
-          width: MediaQuery.of(context).size.width / 5,
-          height: 60,
-          decoration: index == _selectedItemIndex
-              ? BoxDecoration(
-              border:
-              Border(bottom: BorderSide(width: 4, color: text_color0)),
-              gradient: LinearGradient(colors: [
-                Colors.green.withOpacity(0.3),
-                Colors.green.withOpacity(0.016),
-              ], begin: Alignment.bottomCenter, end: Alignment.topCenter))
-              : BoxDecoration(),
-          // ignore: deprecated_member_use
-          child: RaisedButton(
-            padding: EdgeInsets.only(top: 5),
-            onPressed: ()
-            {
-              showSheet();
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (conetext) => Pay()),
-              // );
-            },
-            elevation: 0,
-            color: Colors.white,
-            child: Column(
-              children: [
-                Icon(
-                  iconLink,
-                  color:
-                  index == _selectedItemIndex ? text_color0 : text_color2,
-                ),
-                Text(
-                  message,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    GestureDetector buildNavBarHome(IconData iconLink, int index, String message) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedItemIndex = index;
-          });
-        },
-        child: Container(
-          width: MediaQuery.of(context).size.width / 5,
-          height: 60,
-          decoration: index == _selectedItemIndex
-              ? BoxDecoration(
-              border:
-              Border(bottom: BorderSide(width: 4, color: text_color0)),
-              gradient: LinearGradient(colors: [
-                Colors.green.withOpacity(0.3),
-                Colors.green.withOpacity(0.016),
-              ], begin: Alignment.bottomCenter, end: Alignment.topCenter))
-              : BoxDecoration(),
-          // ignore: deprecated_member_use
-          child: RaisedButton(
-            padding: EdgeInsets.only(top: 5),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => Historique()),
-              );
-            },
-            elevation: 0,
-            color: Colors.white,
-            child: Column(
-              children: [
-                Icon(
-                  iconLink,
-                  color:
-                  index == _selectedItemIndex ? text_color0 : text_color2,
-                ),
-                Text(
-                  message,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    GestureDetector buildNavBarHist(IconData iconLink, int index, String message) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedItemIndex = index;
-          });
-        },
-        child: Container(
-          width: MediaQuery.of(context).size.width / 5,
-          height: 60,
-          decoration: index == _selectedItemIndex
-              ? BoxDecoration(
-              border:
-              Border(bottom: BorderSide(width: 4, color: text_color0)),
-              gradient: LinearGradient(colors: [
-                Colors.green.withOpacity(0.3),
-                Colors.green.withOpacity(0.016),
-              ], begin: Alignment.bottomCenter, end: Alignment.topCenter))
-              : BoxDecoration(),
-          // ignore: deprecated_member_use
-          child: RaisedButton(
-            padding: EdgeInsets.only(top: 5),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => Appro()),
-              );
-            },
-            elevation: 0,
-            color: Colors.white,
-            child: Column(
-              children: [
-                Icon(iconLink, color:
-                index == _selectedItemIndex ? text_color0 : text_color2,
-                ),
-                Text(
-                  message,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
 
     return Scaffold(
-      drawer: Container(
-        color: Colors.red,
-        width: size.width * 0.72,
-        child: NavBar(),
-      ),
       backgroundColor: Colors.blueGrey[50],
       appBar: AppBar(
         iconTheme: const IconThemeData(color: color_white),
@@ -373,8 +177,8 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
               {
                 if (snapshot.data == null) {
                   return Container(
-                    height: 400,
-                    child: const Center(
+                    height: 50,
+                    child: Center(
                       child: SizedBox(
                         child: CircularProgressIndicator(
                           color: text_color,
@@ -397,6 +201,16 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
                   },
                   child: Column(
                     children: [
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        child: Text(
+                            "Veuillez apporter une modification a vos entreprises",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14
+                            ),
+                        ),
+                      ),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
@@ -410,7 +224,6 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
                             itemBuilder: (BuildContext context, int index)
                             {
                               var ops = listData[index];
-
                               return Container(
                                 child: _listCryptoItem(
                                   iconUrl: "${ops["logo"]}",
@@ -419,7 +232,7 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
                                   trans: "${listData[index]["trans_id"]}",
                                   id: ops["id"].toString(),
                                   phone: ops["telephone"],
-                                  email: ops["email"]
+                                  email: ops["email"],
                                 ),
                               );
                             },
@@ -514,25 +327,13 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
               ))
         ],
       ),
-      bottomNavigationBar: Container(
-        color: text_color1,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            buildNavBarHome(Icons.home, 0, "Accueil"),
-            buildNavBarAppro(Icons.account_balance_wallet, 1, "Appro"),
-            buildNavBarTrans(Icons.send, 2, "Pay"),
-            buildNavBarHist(Icons.history, 3, "Historique"),
-          ],
-        ),
-      ),
     );
   }
 
   Widget _listCryptoItem({required String iconUrl, required String titre, adresse, trans, required String id, phone, email}) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Home(id, iconUrl, phone, email, titre)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Edit_Entreprise(id)));
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 9.0),
@@ -561,10 +362,10 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
                   ],
                 ),
               ),
-              Icon(
-                  Icons.check_circle_rounded,
-                color: Colors.green,
-              )
+              // Icon(
+              //     Icons.check_circle_rounded,
+              //   color: Colors.green,
+              // )
             ],
           ),
         ),
