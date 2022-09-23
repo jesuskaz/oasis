@@ -27,7 +27,7 @@ class _SoldeState extends State<Solde>
 
     final response = await http.get(Uri.parse(url), headers: {'Authorization': "Bearer $token", 'Accept': 'application/json'});
 
-    print("STATUS :::: ${response.body}");
+    print("TOKKKKKENNNNN :::: ${token}");
 
     if (response.statusCode == 200)
     {

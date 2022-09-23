@@ -64,20 +64,17 @@ class _SigninScreenState extends State<SigninScreen>
       });
     }
   }
-
   @override
   void dispose() {
     super.dispose();
     subscription.cancel();
   }
-
   @override
   initState() {
     _askPermissions();
     checkNetwork();
     super.initState();
   }
-
   Future<void> _askPermissions() async {
     PermissionStatus permissionStatus = await _getContactPermission();
     if (permissionStatus == PermissionStatus.granted) {
@@ -213,7 +210,6 @@ class _SigninScreenState extends State<SigninScreen>
     progressDialog.show();
   }
   Future login() async {
-
     setState(() {
       noInternet = '';
     });
@@ -227,11 +223,11 @@ class _SigninScreenState extends State<SigninScreen>
         "login": tel,
         "password": password.text,
       };
+      // http.Response response = await http.post(Uri.parse(url), body: data);
+      // print("STATUS CODE IS :::: ${response.statusCode}");
 
       http.post(Uri.parse(url), body: data,).timeout(const Duration(seconds: 40)).then((res) async {
         progressDialog.dismiss();
-        print("STATUS CODE IS :::: ${res.body}");
-
         if (res.statusCode == 400)
         {
           var data = jsonDecode(res.body);

@@ -162,6 +162,7 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
       builder: buildSheet,
       headerBuilder: buildHeader,
     ));
+
     GestureDetector buildNavBarAppro(IconData iconLink, int index, String message) {
       return GestureDetector(
         onTap: () {
@@ -230,11 +231,11 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
             padding: EdgeInsets.only(top: 5),
             onPressed: ()
             {
-              showSheet();
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (conetext) => Pay()),
-              // );
+              // showSheet();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (conetext) => HomeScreen()),
+              );
             },
             elevation: 0,
             color: Colors.white,
@@ -278,11 +279,6 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
           child: RaisedButton(
             padding: EdgeInsets.only(top: 5),
             onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => Historique()),
-              );
             },
             elevation: 0,
             color: Colors.white,
@@ -329,7 +325,7 @@ class _List_EntrepriseState extends State<List_Entreprise> with SingleTickerProv
               Navigator.of(context).pop();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (conetext) => Appro()),
+                MaterialPageRoute(builder: (conetext) => Historique()),
               );
             },
             elevation: 0,

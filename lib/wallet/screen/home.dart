@@ -12,6 +12,7 @@ import 'package:oasisapp/tool.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
+import 'package:oasisapp/wallet/screen/historique.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'appro.dart';
@@ -717,7 +718,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               Navigator.of(context).pop();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (conetext) => Appro()),
+                MaterialPageRoute(builder: (conetext) => Historique()),
               );
             },
             elevation: 0,

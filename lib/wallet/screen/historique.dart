@@ -9,6 +9,7 @@ import 'package:oasisapp/tool.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:legacy_progress_dialog/legacy_progress_dialog.dart';
+import 'package:oasisapp/wallet/screen/home.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'appro.dart';
@@ -450,7 +451,7 @@ class _HistoriqueState extends State<Historique> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     setState((){});
     Size size = MediaQuery.of(context).size;
-    int _selectedItemIndex = 0;
+    int _selectedItemIndex = 3;
 
     Widget buildHeader(BuildContext context, SheetState state) => Material(
       child: Container(
@@ -572,11 +573,11 @@ class _HistoriqueState extends State<Historique> with SingleTickerProviderStateM
             padding: EdgeInsets.only(top: 5),
             onPressed: ()
             {
-              showSheet();
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (conetext) => Pay()),
-              // );
+              // showSheet();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (conetext) => HomeScreen()),
+              );
             },
             elevation: 0,
             color: Colors.white,
@@ -623,7 +624,7 @@ class _HistoriqueState extends State<Historique> with SingleTickerProviderStateM
               Navigator.of(context).pop();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (conetext) => Historique()),
+                MaterialPageRoute(builder: (conetext) => HomeScreen()),
               );
             },
             elevation: 0,
@@ -668,11 +669,6 @@ class _HistoriqueState extends State<Historique> with SingleTickerProviderStateM
           child: RaisedButton(
             padding: EdgeInsets.only(top: 5),
             onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => Appro()),
-              );
             },
             elevation: 0,
             color: Colors.white,

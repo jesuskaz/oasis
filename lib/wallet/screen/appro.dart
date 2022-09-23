@@ -1,5 +1,8 @@
 import 'dart:ui';
+import 'package:oasisapp/catalog/views/home.dart';
+import 'package:oasisapp/catalog/views/list_entreprise.dart';
 import 'package:oasisapp/solde.dart';
+import 'package:oasisapp/wallet/screen/historique.dart';
 import 'package:oasisapp/wallet/screen/home.dart';
 import 'package:oasisapp/wallet/screen/payment_card.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +18,7 @@ class Appro extends StatefulWidget
 }
 class _Appro extends State<Appro>
 {
-  int _selectedItemIndex = 0;
+  int _selectedItemIndex = 1;
   TextEditingController montantUSD = TextEditingController();
   TextEditingController montantCDF = TextEditingController();
 
@@ -234,11 +237,6 @@ class _Appro extends State<Appro>
           child: RaisedButton(
             padding: EdgeInsets.only(top: 5),
             onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => Appro()),
-              );
             },
             elevation: 0,
             color: Colors.white,
@@ -259,54 +257,8 @@ class _Appro extends State<Appro>
         ),
       );
     }
+
     GestureDetector buildNavBarTrans(IconData iconLink, int index, String message) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedItemIndex = index;
-          });
-        },
-        child: Container(
-          width: MediaQuery.of(context).size.width / 5,
-          height: 60,
-          decoration: index == _selectedItemIndex
-              ? BoxDecoration(
-              border:
-              Border(bottom: BorderSide(width: 4, color: text_color0)),
-              gradient: LinearGradient(colors: [
-                Colors.green.withOpacity(0.3),
-                Colors.green.withOpacity(0.016),
-              ], begin: Alignment.bottomCenter, end: Alignment.topCenter))
-              : BoxDecoration(),
-          // ignore: deprecated_member_use
-          child: RaisedButton(
-            padding: EdgeInsets.only(top: 5),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => DetailWalletScreen()),
-              );
-            },
-            elevation: 0,
-            color: Colors.white,
-            child: Column(
-              children: [
-                Icon(
-                  iconLink,
-                  color:
-                  index == _selectedItemIndex ? text_color0 : text_color2,
-                ),
-                Text(
-                  message,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    GestureDetector buildNavBarHome(IconData iconLink, int index, String message) {
       return GestureDetector(
         onTap: () {
           setState(() {
@@ -353,6 +305,54 @@ class _Appro extends State<Appro>
         ),
       );
     }
+    GestureDetector buildNavBarHome(IconData iconLink, int index, String message) {
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedItemIndex = index;
+          });
+        },
+        child: Container(
+          width: MediaQuery.of(context).size.width / 5,
+          height: 60,
+          decoration: index == _selectedItemIndex
+              ? BoxDecoration(
+              border:
+              Border(bottom: BorderSide(width: 4, color: text_color0)),
+              gradient: LinearGradient(colors: [
+                Colors.green.withOpacity(0.3),
+                Colors.green.withOpacity(0.016),
+              ], begin: Alignment.bottomCenter, end: Alignment.topCenter))
+              : BoxDecoration(),
+          // ignore: deprecated_member_use
+          child: RaisedButton(
+            padding: EdgeInsets.only(top: 5),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (conetext) => List_Entreprise()),
+              );
+            },
+            elevation: 0,
+            color: Colors.white,
+            child: Column(
+              children: [
+                Icon(
+                  iconLink,
+                  color:
+                  index == _selectedItemIndex ? text_color0 : text_color2,
+                ),
+                Text(
+                  message,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     GestureDetector buildNavBarHist(IconData iconLink, int index, String message) {
       return GestureDetector(
         onTap: () {
@@ -376,10 +376,7 @@ class _Appro extends State<Appro>
           child: RaisedButton(
             padding: EdgeInsets.only(top: 5),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (conetext) => Appro()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Historique()));
             },
             elevation: 0,
             color: Colors.white,
@@ -566,10 +563,10 @@ class _Appro extends State<Appro>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            buildNavBarHome(Icons.home, 3, "Accueil"),
-            buildNavBarAppro(Icons.account_balance_wallet, 0, "Appro"),
+            buildNavBarHome(Icons.home, 0, "Accueil"),
+            buildNavBarAppro(Icons.account_balance_wallet, 1, "Appro"),
             buildNavBarTrans(Icons.send, 2, "Pay"),
-            buildNavBarHist(Icons.history, 4, "Historique"),
+            buildNavBarHist(Icons.history, 3, "Historique"),
           ],
         ),
       ),

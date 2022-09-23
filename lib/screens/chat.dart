@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:oasisapp/send_menu_items.dart';
 import 'package:oasisapp/tool.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +6,14 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/io.dart';
+import 'call.dart';
 
 class ChatPage extends StatefulWidget {
   String receiver_id;
   String name;
+  String user_id;
 
-  ChatPage(this.receiver_id, this.name);
+  ChatPage(this.receiver_id, this.name, this.user_id);
 
   @override
   State<StatefulWidget> createState()
@@ -21,16 +22,17 @@ class ChatPage extends StatefulWidget {
   }
 }
 class ChatPageState extends State<ChatPage> {
-
   late IOWebSocketChannel channel; //channel varaible for websocket
-  late bool connected; // boolean value to track connection status
+  late bool connected;
 
   String auth = "chatapphdfgjd34534hjdfk"; //auth key
   String ontap = '';
 
   List<MessageData> msglist = [];
-  TextEditingController msgtext = TextEditingController();
+  var temp;
 
+  TextEditingController msgtext = TextEditingController();
+  var data_message;
   String user_id = '';
   bool message_not_send = true;
 
@@ -47,26 +49,33 @@ class ChatPageState extends State<ChatPage> {
     connected = false;
     msgtext.text = "";
     channelconnect();
-    getUser_id();
     super.initState();
-  }
-
-  void getUser_id() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      user_id = pref.getString("user_id").toString();
-    });
   }
   channelconnect() async {
     //function to connect
-
-    try{
-      channel = IOWebSocketChannel.connect("ws://192.168.43.3:6060/${widget.receiver_id}"); //channel IP : Port
+    try {
+      channel = IOWebSocketChannel.connect("ws://192.168.43.3:6060/${widget.receiver_id}/${widget.user_id}"); //channel IP : Port
       channel.stream.listen((message)
       {
         setState(()
         {
-          if(message == "connected")
+          temp = json.decode(message);
+          if(temp["status"] == true )
+            {
+              data_message = temp["conversation"];
+              for(int i = 0; i < data_message.length; i++)
+                {
+                  if(data_message[i]["sentbyuser"].toString() == widget.user_id)
+                    {
+                      msglist.add(MessageData(msgtext: data_message[i]["message"], userid: widget.user_id.toString(), receiver_id: widget.receiver_id.toString(), isme: true,));
+                    }
+                  else
+                    {
+                      msglist.add(MessageData(msgtext: data_message[i]["message"], userid: widget.user_id.toString(), receiver_id: widget.receiver_id.toString(), isme: false,));
+                    }
+                }
+            }
+          if(temp["connexion"] == "connected")
           {
             connected = true;
             setState(() { });
@@ -106,12 +115,11 @@ class ChatPageState extends State<ChatPage> {
         onError: (error) {
           print("Error: ${error.toString()}");
         },);
-    }catch (_){
+    } catch (_){
       print("error on connecting to websocket.");
     }
   }
   Future<void> sendmsg(String sendmsg) async {
-
     SharedPreferences pref = await SharedPreferences.getInstance();
     user_id = pref.getString("user_id").toString();
 
@@ -130,7 +138,6 @@ class ChatPageState extends State<ChatPage> {
       print("Websocket is not connected.");
     }
   }
-
   void showModal(){
     showModalBottomSheet(
         context: context,
@@ -188,6 +195,7 @@ class ChatPageState extends State<ChatPage> {
         }
     );
   }
+
   @override
   Widget build(BuildContext context) {
     final isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
@@ -230,9 +238,20 @@ class ChatPageState extends State<ChatPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Icon(Icons.call, color: color_white,),
-                        SizedBox(width: 15,),
-                        Icon(Icons.videocam, color: color_white,),
+                        IconButton(
+                            onPressed: () async {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CallPage()));
+                            },
+                            icon: Icon(Icons.call, color: color_white,),
+                        ),
+                        SizedBox(width: 1,),
+                        IconButton(
+                            onPressed: () async {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CallPage()));
+                            },
+                            icon: Icon(Icons.videocam, color: color_white,)
+                        ),
+
                       ],
                     ),
                   ),
@@ -334,11 +353,12 @@ class ChatPageState extends State<ChatPage> {
                           height: 40,
                           width: 40,
                           child: FloatingActionButton(
+                            heroTag: "second",
                             onPressed: ()
                             {
                               if(msgtext.text != "")
                               {
-                                sendmsg(msgtext.text); //send message with webspcket
+                                sendmsg(msgtext.text); //send message with websocket
                               }else {
                                 print("Enter message");
                               }
@@ -378,6 +398,7 @@ class ChatPageState extends State<ChatPage> {
                           height: 40,
                           width: 40,
                           child: FloatingActionButton(
+                            heroTag: "first",
                             onPressed: ()
                             {
                               if(msgtext.text != ""){

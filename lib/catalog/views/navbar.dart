@@ -375,39 +375,39 @@ class _NavBar extends State<NavBar> {
                         builder: (BuildContext context) => Option_boutique()));
               }),
           const Divider(height: 1),
-          ListTile(
-              leading: Icon(Icons.notifications_none),
-              title: const Text(
-                "Notification",
-                style: TextStyle(
-                  color: color_grey,
-                  fontSize: taille2,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Container()));
-              }),
-          const Divider(height: 1),
-          ListTile(
-              leading: Icon(Icons.history),
-              title: const Text(
-                "Historique",
-                style: TextStyle(
-                  color: color_grey,
-                  fontSize: taille2,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Container()));
-              }),
+          // ListTile(
+          //     leading: Icon(Icons.notifications_none),
+          //     title: const Text(
+          //       "Notification",
+          //       style: TextStyle(
+          //         color: color_grey,
+          //         fontSize: taille2,
+          //       ),
+          //     ),
+          //     onTap: () {
+          //       Navigator.of(context).pop();
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (BuildContext context) => Container()));
+          //     }),
+          // const Divider(height: 1),
+          // ListTile(
+          //     leading: Icon(Icons.history),
+          //     title: const Text(
+          //       "Historique",
+          //       style: TextStyle(
+          //         color: color_grey,
+          //         fontSize: taille2,
+          //       ),
+          //     ),
+          //     onTap: () {
+          //       Navigator.of(context).pop();
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (BuildContext context) => Container()));
+          //     }),
           ListTile(
               leading: Icon(Icons.account_circle),
               title: const Text(

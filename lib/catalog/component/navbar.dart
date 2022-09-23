@@ -2,8 +2,8 @@ import 'package:oasisapp/catalog/views/boutique.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:oasisapp/tool.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
 
 // import 'package:mbangu/utilities/dbHelper.dart';
 // import 'package:mbangu/utilities/utils.dart';

@@ -45,7 +45,6 @@ class _Payment_cartState extends State<Payment_cart>
   }
 
   Future getDevise() async {
-
     String url = apiUrl + "devise";
     final response = await http.get(Uri.parse(url), headers: {'Accept': 'application/json'});
 
@@ -227,7 +226,7 @@ class _Payment_cartState extends State<Payment_cart>
       padding: EdgeInsets.all(10),
       onPressed: () async {
         Navigator.pop(context);
-        await appro(3);
+        await appro(2);
       },
       color: text_color,
       textColor: Colors.white,

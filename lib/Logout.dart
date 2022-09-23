@@ -159,7 +159,7 @@ class _LogoutState extends State<Logout> {
 
         if (res.statusCode == 400)
         {
-          var data = jsonDecode(res.body);
+          // var data = jsonDecode(res.body);
           Fluttertoast.showToast(
               msg: "",
               toastLength: Toast.LENGTH_LONG,

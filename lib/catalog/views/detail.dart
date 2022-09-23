@@ -259,7 +259,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                   child: Text(widget.titre,
                       style: TextStyle(
                           fontFamily: 'Varela',
-                          fontSize: 42.0,
+                          fontSize: 24.0,
                           fontWeight: FontWeight.bold,
                           color: text_color0)
                   ),
@@ -314,7 +314,7 @@ class _Detail extends State<Detail> with TickerProviderStateMixin
                             style: const TextStyle(
                                 color: Color(0xFF575E67),
                                 fontFamily: 'Varela',
-                                fontSize: 24.0)),
+                                fontSize: 18.0)),
                       ),
                     ),
                     const SizedBox(width: 10.0),

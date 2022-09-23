@@ -220,7 +220,7 @@ class _Edit_Entreprise extends State<Edit_Entreprise> with TickerProviderStateMi
             ),
             SizedBox(height: 10,),
             Text(
-              "Voulez-vous ajouter l'Edit_Entreprise ${nom_Edit_Entreprise.text.toString()} a votre compte ?",
+              "Voulez-vous Modifier l'Entreprise ${nom_Edit_Entreprise.text.toString()} ?",
               style: TextStyle(
                   color: text_color3
               ),
@@ -258,7 +258,7 @@ class _Edit_Entreprise extends State<Edit_Entreprise> with TickerProviderStateMi
       if(file_image != null)
       {
         FormData data = FormData.fromMap({
-          "Edit_Entreprise": nom_Edit_Entreprise.text,
+          "entreprise": nom_Edit_Entreprise.text,
           "adresse": adresse.text,
           "telephone": tel.toString(),
           "email": email.text,
@@ -283,7 +283,7 @@ class _Edit_Entreprise extends State<Edit_Entreprise> with TickerProviderStateMi
             if(res.data["status"] == true)
             {
               Fluttertoast.showToast(
-                msg: "Votre Edit_Entreprise a été enregistrée avec succès",
+                msg: "Votre Entreprise a été modifiée avec succès",
                 toastLength: Toast.LENGTH_SHORT,
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
@@ -470,7 +470,7 @@ class _Edit_Entreprise extends State<Edit_Entreprise> with TickerProviderStateMi
           },
           maxLength: 9,
           autoValidateMode: AutovalidateMode.disabled,
-          selectorTextStyle: TextStyle(color: Colors.white),
+          selectorTextStyle: TextStyle(color: Colors.black),
           initialValue: number,
           textFieldController: phone,
           formatInput: false,
@@ -678,7 +678,7 @@ class _Edit_Entreprise extends State<Edit_Entreprise> with TickerProviderStateMi
                   ),
                   SizedBox(height: 10,),
                   const Text(
-                    "Ajoutez le logo de l'Edit_Entreprise",
+                    "Ajoutez le logo de l'Entreprise",
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

@@ -102,7 +102,7 @@ class _AccueilState extends State<Accueil>
                         GestureDetector(
                           onTap: ()
                           {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(receiver_id, name)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(receiver_id, name, user_id)));
                           },
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 15),

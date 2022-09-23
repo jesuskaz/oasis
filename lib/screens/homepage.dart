@@ -67,6 +67,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
   }
 
+  Future getCredit() async {
+    await _handleCameraAndMic(Permission.camera);
+    await _handleCameraAndMic(Permission.microphone);
+  }
+  Future<void> _handleCameraAndMic(Permission permission) async {
+    final status = await permission.request();
+    print(status);
+  }
+
   @override
   void dispose() {
     animationController.dispose();
@@ -75,6 +84,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     getContact();
+    getCredit();
     animationController = AnimationController(vsync: this,duration: Duration(milliseconds: 250));
     degOneTranslationAnimation = TweenSequence([
       TweenSequenceItem<double>(tween: Tween<double >(begin: 0.0,end: 1.2), weight: 75.0),

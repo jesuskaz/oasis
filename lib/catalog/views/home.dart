@@ -208,7 +208,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           onPressed: () {
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignupScreen()),
+                MaterialPageRoute(builder: (context) => Appro()),
             );
           },
           elevation: 0,
@@ -658,9 +658,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             buildNavBarHome(Icons.home, 0, "Accueil"),
-            buildNavBarAppro(Icons.person_outline, 2, "Compte"),
-            buildNavBarTrans(Icons.send, 3, "Pay"),
-            buildNavBarHist(Icons.history, 4, "Historique"),
+            buildNavBarAppro(Icons.account_balance_wallet, 1, "Appro"),
+            buildNavBarTrans(Icons.send, 2, "Pay"),
+            buildNavBarHist(Icons.history, 3, "Historique"),
           ],
         ),
       ),
